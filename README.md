@@ -50,3 +50,15 @@ Một booking chỉ dùng một gói giá — quy tắc Bookese do người dùn
 Giữ bố cục bốn mục bên trái (Thông tin đặt phòng, Thông tin liên hệ, Voucher/Giảm giá, Phương thức thanh toán) và Tóm tắt giá bên phải. Khách/giường hiển thị gọn trong từng loại phòng; mở chi tiết để xem các dòng phụ thu. Giá, khách, giường và điều kiện gói lấy từ lựa chọn hiện tại, không tính lại theo tổng khách cho từng phòng. Thuế/phí được ghi đã bao gồm theo mô hình giá hiện tại; không tự suy ra hoặc cộng thêm tỷ lệ thuế từ ảnh tham chiếu.
 
 Thông tin liên hệ, yêu cầu đặc biệt, nhận phòng dự kiến và hóa đơn được giữ khi quay lại sửa phòng trong cùng phiên. Biểu mẫu kiểm tra thông tin bắt buộc và điều khoản trước khi tạo đơn mô phỏng. Gói Linh hoạt giữ thanh toán tại chỗ nghỉ. Voucher và Xu chỉ tái hiện giao diện, không giảm giá; không nối thanh toán hoặc gửi thông tin cá nhân. Dùng dữ liệu minh họa để kiểm tra.
+
+## Phương án 2: hệ thống tự tính phụ thu
+
+Mở `?mode=automatic#/customer/hotel`; thêm `&sample=ab` trước hash để dùng ví dụ riêng A/B. Nút chuyển phương án ở đầu trang giữ cả phương án khách tự điều chỉnh. Dữ liệu A/B không ghi vào cấu hình Extranet: A tiêu chuẩn 2, tối đa 4, giá 700k; B tiêu chuẩn 3, tối đa 5, giá 800k; mỗi phòng 1 giường phụ 200k, người lớn thêm dùng giường có sẵn 150k.
+
+- Tìm nhiều phòng: đề xuất rẻ nhất trong các tổ hợp từ 1 đến số phòng đã tìm. Hiển thị rõ số phòng thực tế khi khác yêu cầu. Khách có thể tự chọn nhiều phòng hơn (tối đa 6) nếu tồn kho và số người lớn cho phép. Phương án 1 vẫn giữ đúng số phòng tìm kiếm.
+- Mỗi lần thay đổi số lượng/gói giá, tối ưu lại cách phân khách và giường nội bộ. Giường phụ vẫn áp dụng trước đến mức bắt buộc; không gộp sức chứa/giới hạn trẻ em của các phòng thành một giới hạn chung. Khi giá trẻ em cao hơn giá người lớn, cũng so sánh đối tượng dùng giường phụ để tìm tổng phí thấp nhất.
+- Nếu chưa đủ chỗ: chỉ báo giá tạm tính cho tập khách lớn nhất có thể chứa, nêu số khách chưa có chỗ và khóa đặt phòng. Báo giá này không được chuyển thành đơn đặt phòng.
+- Checkout, xác nhận và đơn Extranet gom theo loại phòng: số phòng, số giường phụ, số phụ thu giá người lớn, số phụ thu trẻ em, đơn giá và tổng tiền. Không công bố khách nào ở phòng số mấy. Bằng chứng phân bổ hợp lệ vẫn được giữ nội bộ để kiểm tra giới hạn và giá; đổi loại/số lượng phải tính lại toàn bộ, không cho tự chuyển phụ thu.
+- A×1 cho 5 người: tạm tính 4/5 khách = 1.050.000đ, chưa được đặt. A×2: 1.600.000đ, chỉ 1 giường phụ. B×1: 1.150.000đ, đủ 5 khách với 1 giường phụ và 1 phụ thu người lớn dùng giường có sẵn. A+B: 1.500.000đ, không phụ thu, tổng tiêu chuẩn 5.
+
+Đây là phương án sản phẩm Bookese theo yêu cầu, không khẳng định là quy tắc chung của Booking.com.

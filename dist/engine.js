@@ -57,7 +57,7 @@ export function suggestedBeds(r,guests,c){
 }
 // Dynamic programming examines all adult counts and child subsets per booked room.
 // Adult identities are interchangeable; child identities/ages are retained exactly.
-export function allocate(rooms,search,c,ratePlanId='standard'){
+export function allocate(rooms,search,c,ratePlanId='standard',bedPicker=suggestedBeds){
  if(search.adults<rooms.length||nights(search)<1||search.adults+search.children.length>rooms.reduce((n,r)=>n+r.max,0)||search.adults>rooms.reduce((n,r)=>n+r.adults,0)||search.children.length>rooms.reduce((n,r)=>n+r.children,0))return null;
  const guests=guestList(search),adultGuests=guests.filter(g=>g.adult),children=guests.filter(g=>!g.adult),memo=new Map();
  function solve(i,leftAdults,mask){
@@ -70,7 +70,7 @@ export function allocate(rooms,search,c,ratePlanId='standard'){
     const kids=children.filter((g,k)=>subset&(1<<k));
     if(kids.length<=r.children&&n+kids.length<=r.max&&(!kids.length||c.allowChildren)){
      const group=[...adultGuests.slice(search.adults-leftAdults,search.adults-leftAdults+n),...kids];
-     const bedIds=suggestedBeds(r,group,c),quote=priceRoom(r,group,bedIds,c,search,ratePlanId);
+     const bedIds=bedPicker(r,group,c,search,ratePlanId),quote=priceRoom(r,group,bedIds,c,search,ratePlanId);
      if(quote.valid){const tail=solve(i+1,leftAdults-n,mask^subset);if(tail&&(!best||quote.total+tail.cost<best.cost))best={cost:quote.total+tail.cost,rows:[{roomId:r.id,ratePlanId,guestIds:group.map(g=>g.id),bedIds,quote},...tail.rows]};}
     }
     if(subset===0)break;
@@ -80,14 +80,14 @@ export function allocate(rooms,search,c,ratePlanId='standard'){
  }
  return solve(0,search.adults,(1<<children.length)-1)?.rows||null;
 }
-export function recommendations(search,c,quantities,onlyPlan){
+export function recommendations(search,c,quantities,onlyPlan,bedPicker=suggestedBeds){
  if(search.rooms<1||search.rooms>6||search.adults<1||search.adults>24||search.children.length>8||search.children.some(a=>a<0||a>17)||!Number.isFinite(nights(search))||nights(search)<1)return [];
  const results=[];
  for(const plan of ratePlans.filter(p=>!onlyPlan||p.id===onlyPlan)){
   function build(i,list,counts){
    if(i===c.rooms.length){
     if(list.length!==search.rooms)return;
-    const allocation=allocate(list,search,c,plan.id);
+    const allocation=allocate(list,search,c,plan.id,bedPicker);
     if(allocation)results.push({ratePlanId:plan.id,rooms:list.map(r=>r.id),counts,allocation,total:allocation.reduce((s,a)=>s+a.quote.total,0),capacityGap:list.reduce((s,r)=>s+r.max,0)-search.adults-search.children.length,adultGap:list.reduce((s,r)=>s+r.adults,0)-search.adults});return;
    }
    const r=c.rooms[i],price=ratePrice(r,plan.id),max=Number.isFinite(price)&&price>=0?Math.min(r.inventory,search.rooms-list.length):0;
