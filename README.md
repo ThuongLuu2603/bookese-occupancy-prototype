@@ -62,3 +62,10 @@ Mở `?mode=automatic#/customer/hotel`; thêm `&sample=ab` trước hash để d
 - A×1 cho 5 người: tạm tính 4/5 khách = 1.050.000đ, chưa được đặt. A×2: 1.600.000đ, chỉ 1 giường phụ. B×1: 1.150.000đ, đủ 5 khách với 1 giường phụ và 1 phụ thu người lớn dùng giường có sẵn. A+B: 1.500.000đ, không phụ thu, tổng tiêu chuẩn 5.
 
 Đây là phương án sản phẩm Bookese theo yêu cầu, không khẳng định là quy tắc chung của Booking.com.
+
+
+### Chỗ tiêu chuẩn cho trẻ em ở phương án 2
+
+Số khách tiêu chuẩn bao gồm người lớn và trẻ em. Trẻ em dùng chỗ tiêu chuẩn còn trống trong từng phòng không bị tính phụ thu. Chỉ khách ngoài số tiêu chuẩn mới áp dụng giường phụ ưu tiên, sau đó phụ thu theo tuổi; luôn kiểm tra giới hạn từng phòng. Trong các cách bố trí hợp lệ, hệ thống tối ưu tổng giá. Phương án 1 giữ chính sách trước đó để so sánh.
+
+Ví dụ 5 người lớn + 1 trẻ 8 tuổi, Awaken tiêu chuẩn 2: chọn 3 phòng = 2.100.000đ, không phụ thu; chọn 2 phòng = 1.800.000đ gồm 2 giường phụ. Chọn 3 phòng vẫn hợp lệ dù ban đầu tìm 2 phòng. Không chuyển chỗ tiêu chuẩn trống của phòng khác để bỏ qua giới hạn người lớn/trẻ em trong một phòng.

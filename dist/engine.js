@@ -42,10 +42,13 @@ export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
  if(days<1)errors.push('Ngày trả phòng phải sau ngày nhận phòng.');
  // Included slots go to existing-bed guests first. A bundled extra bed must not
  // make an arbitrary guest ID consume an included slot and bill another guest.
- const rated=guests.filter(g=>g.adult||g.age>=c.adultFrom).sort((a,b)=>Number(bedSet.has(a.id))-Number(bedSet.has(b.id)));const extra=new Set(rated.slice(r.base).map(g=>g.id));
+ const guestFee=g=>g.adult||g.age>=c.adultFrom?c.adultFee:g.age<c.childFreeBelow?0:c.childFee;
+ const eligible=stay.includeChildrenInBase?guests:guests.filter(g=>g.adult||g.age>=c.adultFrom);
+ const included=new Set([...eligible].sort((a,b)=>Number(bedSet.has(a.id))-Number(bedSet.has(b.id))||(stay.includeChildrenInBase?guestFee(b)-guestFee(a):0)).slice(0,r.base).map(g=>g.id));
+ const extra=new Set(guests.filter(g=>(g.adult||g.age>=c.adultFrom)&&!included.has(g.id)).map(g=>g.id));
  const basePrice=ratePrice(r,ratePlanId);if(!ratePlan(ratePlanId)||!Number.isFinite(basePrice)||basePrice<0)errors.push('Gói giá không còn khả dụng.');
  const lines=[{label:'Giá phòng · '+(ratePlan(ratePlanId)?.name||'Không hợp lệ')+' · '+days+' đêm',amount:(basePrice||0)*days,type:'base'}];
- for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=c.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom){fee=g.age<c.childFreeBelow?0:c.childFee;description=g.label+' · dùng giường có sẵn';}
+ for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=c.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom&&(!stay.includeChildrenInBase||!included.has(g.id))){fee=g.age<c.childFreeBelow?0:c.childFee;description=g.label+' · dùng giường có sẵn';}
  if(bedSet.has(g.id)){if(!c.bedIncludesGuest&&fee>0)lines.push({label:g.label+' · phụ thu lưu trú',amount:fee*days,type:'guest',guest:g.id});lines.push({label:g.label+' · 1 giường phụ'+(c.bedIncludesGuest?' (đã gồm phụ thu người sử dụng)':''),amount:r.bedPrice*days,type:'bed',guest:g.id});}
  else if(description)lines.push({label:description,amount:fee*days,type:'guest',guest:g.id});}
  return {valid:errors.length===0,errors,lines,total:lines.reduce((s,l)=>s+l.amount,0),requiredBeds:required};
