@@ -19,8 +19,10 @@ Giá cơ bản/inventory mẫu áp dụng đồng nhất mọi đêm. Không có
 
 - Phụ thu người thêm dùng giường có sẵn: 150.000đ/người/đêm (minh họa mới, sửa được).
 - Giường phụ: 200.000đ cho Awaken/alo ha, 300.000đ cho Leo Truong; mặc định đã gồm phụ thu người sử dụng (sửa được thành cộng riêng).
-- Chỗ thêm dùng giường có sẵn: Awaken 1, alo ha 2, Leo Truong 0 (minh họa mới, sửa được).
+- Chỗ thêm dùng giường có sẵn tự tính: sức chứa tối đa − khách tiêu chuẩn − giường phụ đang bật. Awaken 0, alo ha 2, Leo Truong 0 với cấu hình mặc định; không nhập riêng. Giường phụ không được vượt phần sức chứa còn lại.
 - Tổng sức chứa là giới hạn cứng, đã gồm giường phụ. Khách tiêu chuẩn + chỗ thêm + giường phụ là khả năng bố trí, không tự tăng giới hạn tổng.
-- Giữ tuổi thực trẻ, tính tiền theo tuổi ở chính sách. Giá tiêu chuẩn bao gồm tối đa 2 khách tính giá người lớn; trẻ nhỏ tính riêng ngay cả khi còn suất tiêu chuẩn.
-- Ưu tiên giường phụ là gợi ý cho khách vượt suất tiêu chuẩn, có thể đổi nếu còn chỗ dùng giường có sẵn.
+- Cận trên tuổi hiển thị dạng 12.99 nếu mốc người lớn là 13; logic so sánh tuổi < 13, không bỏ sót khoảng giữa 12.99 và 13. Giữ tuổi thực trẻ, tính tiền theo tuổi ở chính sách. Giá tiêu chuẩn bao gồm tối đa 2 khách tính giá người lớn; trẻ nhỏ tính riêng ngay cả khi còn suất tiêu chuẩn.
+- Luôn áp dụng giường phụ trước cho khách vượt số tiêu chuẩn, kể cả trẻ em. Sau khi dùng hết giường phụ mới dùng chỗ thêm giường có sẵn; không có tùy chọn tắt ưu tiên hoặc trạng thái chờ xác nhận giường.
 - Hình khách sạn và logo được lấy từ trang Bookese do người dùng cung cấp để tái hiện giao diện.
+
+Cấu hình phiên bản 1 được chuyển sang phiên bản 2 khi đọc: giữ giá và mốc tuổi đã lưu; bỏ `noBed`, `preferBed`, `confirmation`.
