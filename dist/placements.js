@@ -1,4 +1,4 @@
-import {guestList,suggestedBeds,validateBooking,roomBeds} from './engine.js?v=20261026-readonly-details';
+import {guestList,suggestedBeds,validateBooking,roomBeds} from './engine.js?v=20261026-adult-fee-row';
 
 export function roomServices(rows,search,config,index){
  const v=validateBooking(rows,{...search,rooms:rows.length},config),guests=guestList(search);
