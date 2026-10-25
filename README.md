@@ -44,3 +44,9 @@ Một booking chỉ dùng một gói giá — quy tắc Bookese do người dùn
 - Quy hoạch động xét toàn bộ số người lớn và tập trẻ ở từng phòng để tìm phân bổ có tổng phí thấp nhất trong mỗi tổ hợp. Không dừng ở phân bổ hợp lệ đầu tiên.
 - Mẫu 5 người lớn/2 phòng/1 đêm: Awaken × 2 gói Tiết kiệm = 1.600.000đ; Awaken + alo ha = 1.700.000đ; gói Linh hoạt tương ứng 1.900.000đ và 2.000.000đ. Mẫu 5 người lớn/1 phòng: Phòng Gia đình + 1 giường phụ = 1.700.000đ.
 - Tham chiếu: Booking.com Demand API mô tả multi-room booking với product/rate selection riêng theo phòng: https://developers.booking.com/demand/docs/migration-guide/v3/migration-faqs
+
+## Checkout theo giao diện Bookese
+
+Giữ bố cục bốn mục bên trái (Thông tin đặt phòng, Thông tin liên hệ, Voucher/Giảm giá, Phương thức thanh toán) và Tóm tắt giá bên phải. Khách/giường hiển thị gọn trong từng loại phòng; mở chi tiết để xem các dòng phụ thu. Giá, khách, giường và điều kiện gói lấy từ lựa chọn hiện tại, không tính lại theo tổng khách cho từng phòng. Thuế/phí được ghi đã bao gồm theo mô hình giá hiện tại; không tự suy ra hoặc cộng thêm tỷ lệ thuế từ ảnh tham chiếu.
+
+Thông tin liên hệ, yêu cầu đặc biệt, nhận phòng dự kiến và hóa đơn được giữ khi quay lại sửa phòng trong cùng phiên. Biểu mẫu kiểm tra thông tin bắt buộc và điều khoản trước khi tạo đơn mô phỏng. Gói Linh hoạt giữ thanh toán tại chỗ nghỉ. Voucher và Xu chỉ tái hiện giao diện, không giảm giá; không nối thanh toán hoặc gửi thông tin cá nhân. Dùng dữ liệu minh họa để kiểm tra.
