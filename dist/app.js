@@ -110,7 +110,7 @@ document.addEventListener('submit',e=>{
  if(invalid){const panel=invalid.closest('details');if(panel)panel.open=true;invalid.focus();invalid.reportValidity();checkoutError='Vui lòng điền đầy đủ thông tin liên hệ hợp lệ.';$('#checkout-error').textContent=checkoutError;return;}
  const v=validateBooking(allocation,search,config);
  if(!contact.terms||!v.valid){checkoutError=!contact.terms?'Vui lòng xác nhận điều khoản trước khi đặt thử.':v.errors.join(' ');$('#checkout-error').textContent=checkoutError;return;}
- const gs=guestList(search);lastBooking={id:'DEMO-'+Date.now().toString().slice(-6),name:contact.name.trim(),contact:clone(contact),search:clone(search),total:v.total,policy:clone(config),rows:allocation.map((row,i)=>({name:config.rooms.find(r=>r.id===row.roomId).name,ratePlanId:row.ratePlanId,guests:gs.filter(g=>row.guestIds.includes(g.id)),bedIds:[...row.bedIds],quote:clone(v.quotes[i])}))};nav('/customer/confirmation');
+ const gs=guestList(search);lastBooking={id:'DEMO-'+Date.now().toString().slice(-6),name:contact.name.trim(),contact:{...clone(contact),payment:allocation[0].ratePlanId==='flex'?'property':contact.payment||'card',myself:contact.myself!==false,vat:contact.vat||'no'},search:clone(search),total:v.total,policy:clone(config),rows:allocation.map((row,i)=>({name:config.rooms.find(r=>r.id===row.roomId).name,ratePlanId:row.ratePlanId,guests:gs.filter(g=>row.guestIds.includes(g.id)),bedIds:[...row.bedIds],quote:clone(v.quotes[i])}))};nav('/customer/confirmation');
 });
 function updateCheckoutContact(el){
  const key=el.dataset.contact;if(!key)return;
