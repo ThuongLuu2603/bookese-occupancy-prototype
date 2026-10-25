@@ -1,24 +1,17 @@
-import {allocate,recommendations,validateBooking,requiredExtraBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261026-child-sharing';
+import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261026-shared-rules';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-// Extra beds cover adult-priced guests beyond the included occupancy.
-// Younger children share existing beds, within the hard room/child limits.
-export function automaticBeds(room,guests,config){
- const rated=guests.filter(g=>g.adult||g.age>=config.adultFrom);
- return rated.slice(room.base,room.base+requiredExtraBeds(room,rated.length,config)).map(g=>g.id);
-}
+export const automaticBeds=suggestedBeds;
 
 // The requested number is an upper bound for suggestions in this variant.
 // Every candidate still uses the same per-room capacity, age and bed rules.
 export function automaticRecommendations(search,config){
- search={...search,includeChildrenInBase:true};
  if(!Number.isInteger(search.rooms)||search.rooms<1||search.rooms>6)return [];
  const results=Array.from({length:search.rooms},(_,i)=>recommendations({...search,rooms:i+1},config,undefined,undefined,automaticBeds)).flat();
  return search.rooms===1?results:results.sort((a,b)=>a.total-b.total||a.capacityGap-b.capacityGap||Math.abs(a.rooms.length-search.rooms)-Math.abs(b.rooms.length-search.rooms));
 }
 
 export function quoteAutomatic(quantities,search,config,plan='standard'){
- search={...search,includeChildrenInBase:true};
  if(!Number.isInteger(search.adults)||search.adults<1||search.adults>24||search.children.length>8||search.children.some(a=>!Number.isFinite(a)||a<0||a>17)||!Number.isFinite(nights(search))||nights(search)<1)return {valid:false,total:0,allocation:[],error:'Kiểm tra số khách, tuổi trẻ em và ngày lưu trú.'};
  const rooms=[];
  for(const [id,count] of Object.entries(quantities)){
@@ -52,7 +45,6 @@ export function quoteAutomatic(quantities,search,config,plan='standard'){
 
 // Public confirmation groups charges by room TYPE; no guest IDs or numbered rooms.
 export function automaticSummary(rows,search,config){
- search={...search,includeChildrenInBase:true};
  const guests=guestList(search),days=nights(search),v=validateBooking(rows,{...search,rooms:rows.length},config),groups=[];
  rows.forEach((row,i)=>{
   const r=config.rooms.find(r=>r.id===row.roomId);let group=groups.find(g=>g.roomId===r.id);

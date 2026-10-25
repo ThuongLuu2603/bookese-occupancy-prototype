@@ -51,7 +51,7 @@ test('automatic checkout confirms room types and services, never numbered-room g
 });
 test('automatic recommendations cover every guest and all selected types remain valid',()=>{
  const c=initialConfig(),s={...stay,adults:3,children:[5,8,12]};
- for(const rec of automaticRecommendations(s,c))assert(validateBooking(rec.allocation,{...s,rooms:rec.rooms.length,includeChildrenInBase:true},c).valid);
+ for(const rec of automaticRecommendations(s,c))assert(validateBooking(rec.allocation,{...s,rooms:rec.rooms.length},c).valid);
 });
 
 
@@ -63,7 +63,7 @@ test('five adults plus a child in three standard-double rooms have no surcharge'
  const html=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:true});
  assert(html.includes('2.100.000đ'));assert(html.includes('Không phát sinh phụ thu'));
  const manual=validateBooking(q.allocation,{...s,rooms:3},c);
- assert.equal(manual.total,2200000,'option 1 retains its original child policy');
+ assert.equal(manual.total,2100000,'both modes include children in standard occupancy');
  const two=quoteAutomatic({a:2},s,c);assert(two.valid);assert.equal(two.total,1700000);
  assert.equal(automaticSummary(two.allocation,two.search,c)[0].fees[0].count,1);assert.equal(automaticSummary(two.allocation,two.search,c)[0].fees.find(f=>f.category==='child').amount,100000);
 });
@@ -104,5 +104,5 @@ test('sharing children still respect individual total and child capacity limits'
  assert(!quoteAutomatic({a:1},{...stay,adults:3,children:[8]},c).valid);
  assert(!quoteAutomatic({a:1},{...stay,adults:1,children:[8,9]},c).valid);
  const manual=recommendations({...stay,children:[8]},c).find(r=>r.ratePlanId==='standard'&&r.rooms.every(id=>id==='a'));
- assert.equal(manual.total,1800000,'option 1 keeps its existing bed-first rule');
+ assert.equal(manual.total,1700000,'both modes share the same child-sharing rule');
 });

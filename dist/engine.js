@@ -30,7 +30,7 @@ export function configErrors(c){const errors=[];if(!Number.isInteger(c.childFree
 export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
  const adults=guests.filter(g=>g.adult).length, kids=guests.filter(g=>!g.adult), bedSet=new Set(bedIds), days=nights(stay), errors=[];
  const ratedGuests=guests.filter(g=>g.adult||g.age>=c.adultFrom);
- const beds=roomBeds(r,c), existing=r.base+existingExtraPlaces(r,c),required=requiredExtraBeds(r,stay.includeChildrenInBase?ratedGuests.length:guests.length,c);
+ const beds=roomBeds(r,c), existing=r.base+existingExtraPlaces(r,c),required=requiredExtraBeds(r,ratedGuests.length,c);
  if(adults<1)errors.push('Mỗi phòng cần ít nhất 1 người lớn đi cùng.');
  if(guests.length>r.max)errors.push('Vượt tổng tối đa '+r.max+' khách.');
  if(adults>r.adults)errors.push('Tối đa '+r.adults+' người lớn.');
@@ -39,26 +39,26 @@ export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
  if(bedSet.size<required)errors.push('Ưu tiên áp dụng '+required+' giường phụ trước khi dùng chỗ thêm giường có sẵn.');
  if(bedSet.size>beds)errors.push('Tối đa '+beds+' giường phụ.');
  if([...bedSet].some(id=>!guests.some(g=>g.id===id)))errors.push('Giường phụ phải gắn với khách trong phòng.');
- if(stay.includeChildrenInBase&&[...bedSet].some(id=>!ratedGuests.some(g=>g.id===id)))errors.push('Phương án tự tính: trẻ dưới mốc giá người lớn sử dụng giường có sẵn.');
- if((stay.includeChildrenInBase?ratedGuests.length:guests.length)-bedSet.size>existing)errors.push('Giường có sẵn chỉ đáp ứng '+existing+' khách; cần thêm giường hoặc chuyển khách.');
+ if([...bedSet].some(id=>!ratedGuests.some(g=>g.id===id)))errors.push('Trẻ dưới mốc giá người lớn sử dụng giường có sẵn.');
+ if((ratedGuests.length)-bedSet.size>existing)errors.push('Giường có sẵn chỉ đáp ứng '+existing+' khách; cần thêm giường hoặc chuyển khách.');
  if(days<1)errors.push('Ngày trả phòng phải sau ngày nhận phòng.');
  // Included slots go to existing-bed guests first. A bundled extra bed must not
  // make an arbitrary guest ID consume an included slot and bill another guest.
  const guestFee=g=>g.adult||g.age>=c.adultFrom?c.adultFee:g.age<c.childFreeBelow?0:c.childFee;
- const eligible=stay.includeChildrenInBase?guests:ratedGuests;
- const included=new Set([...eligible].sort((a,b)=>Number(bedSet.has(a.id))-Number(bedSet.has(b.id))||(stay.includeChildrenInBase?(Number(b.adult||b.age>=c.adultFrom)-Number(a.adult||a.age>=c.adultFrom)||guestFee(b)-guestFee(a)):0)).slice(0,r.base).map(g=>g.id));
+ const eligible=guests;
+ const included=new Set([...eligible].sort((a,b)=>Number(bedSet.has(a.id))-Number(bedSet.has(b.id))||(Number(b.adult||b.age>=c.adultFrom)-Number(a.adult||a.age>=c.adultFrom)||guestFee(b)-guestFee(a))).slice(0,r.base).map(g=>g.id));
  const extra=new Set(guests.filter(g=>(g.adult||g.age>=c.adultFrom)&&!included.has(g.id)).map(g=>g.id));
  const basePrice=ratePrice(r,ratePlanId);if(!ratePlan(ratePlanId)||!Number.isFinite(basePrice)||basePrice<0)errors.push('Gói giá không còn khả dụng.');
  const lines=[{label:'Giá phòng · '+(ratePlan(ratePlanId)?.name||'Không hợp lệ')+' · '+days+' đêm',amount:(basePrice||0)*days,type:'base'}];
- for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=c.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom&&(!stay.includeChildrenInBase||!included.has(g.id))){fee=g.age<c.childFreeBelow?0:c.childFee;description=g.label+' · dùng giường có sẵn';}
+ for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=c.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom&&!included.has(g.id)){fee=g.age<c.childFreeBelow?0:c.childFee;description=g.label+' · dùng giường có sẵn';}
  if(bedSet.has(g.id)){if(!c.bedIncludesGuest&&fee>0)lines.push({label:g.label+' · phụ thu lưu trú',amount:fee*days,type:'guest',guest:g.id});lines.push({label:g.label+' · 1 giường phụ'+(c.bedIncludesGuest?' (đã gồm phụ thu người sử dụng)':''),amount:r.bedPrice*days,type:'bed',guest:g.id});}
  else if(description)lines.push({label:description,amount:fee*days,type:'guest',guest:g.id});}
  return {valid:errors.length===0,errors,lines,total:lines.reduce((s,l)=>s+l.amount,0),requiredBeds:required};
 }
+// Both customer flows share the same age, standard occupancy and bed policy.
 export function suggestedBeds(r,guests,c){
- const rated=guests.filter(g=>g.adult||g.age>=c.adultFrom),extras=rated.slice(r.base);
- const ordered=[...extras,...guests.filter(g=>!g.adult&&!extras.includes(g)).sort((a,b)=>b.age-a.age),...guests.filter(g=>g.adult&&!extras.includes(g))];
- return ordered.slice(0,requiredExtraBeds(r,guests.length,c)).map(g=>g.id);
+ const rated=guests.filter(g=>g.adult||g.age>=c.adultFrom);
+ return rated.slice(r.base,r.base+requiredExtraBeds(r,rated.length,c)).map(g=>g.id);
 }
 // Dynamic programming examines all adult counts and child subsets per booked room.
 // Adult identities are interchangeable; child identities/ages are retained exactly.
