@@ -78,3 +78,10 @@ Trong cả hai phương án, trẻ dưới mốc giá người lớn có thể n
 Cùng cấu hình, gói giá, số phòng và cách bố trí sẽ có cùng giá. PA 1 cho khách chuyển người và điều chỉnh giường cho khách tính giá người lớn, PA 2 tự bố trí và chỉ xác nhận số dịch vụ theo loại phòng. Khi chuyển người ở PA 1, tính lại giường và phụ thu; bố trí vượt sức chứa/giới hạn trẻ em/người lớn bị khóa đặt. Trẻ dưới mốc giá người lớn không chọn giường phụ. Chọn 3 phòng dù tìm 2 phòng được phép; checkout dùng số phòng thực chọn.
 
 Case 5 người lớn + trẻ 8 tuổi: 2 Awaken = 1.700.000đ (1 giường phụ + 1 phí trẻ); 3 Awaken tối ưu = 2.100.000đ, không phụ thu. Nếu khách tự dồn người vào một phòng dù phòng khác còn suất, phí được tính theo bố trí thực tế từng phòng. Hai phương án cùng dùng `suggestedBeds`, `priceRoom`, `validateBooking`, `quoteAutomatic` và bộ đề xuất; thay đổi quy tắc sau này áp dụng cả hai.
+
+
+## PA 1: chọn phòng nhận giường phụ / phụ thu
+
+Nút **Đổi phòng** xuất hiện ngay cạnh từng giường phụ hoặc phụ thu trong cột Lựa chọn của bạn. Không cần mở danh sách từng khách. Hộp chọn liệt kê các phòng đã đặt, giá sau chuyển và lý do không nhận được. Áp dụng chuyển cả khách đi kèm; ưu tiên chuyển trực tiếp, nếu không được thì thử đổi chỗ một khách ở phòng đích. Mọi thay đổi và chênh lệch giá được xem trước. Chỉ áp dụng khi toàn bộ booking hợp lệ; có Hoàn tác. Chi tiết khách & giá vẫn mở được cho thao tác nâng cao.
+
+Ví dụ 5 người lớn, Awaken + alo ha: chuyển 1 giường phụ từ alo ha sang Awaken đổi thành 3 người lớn ở Awaken (900k) và 2 ở alo ha (800k), tổng vẫn 1.700k với phí giường bằng nhau. Nếu phí giường khác nhau, tính theo phòng đích và số đêm. Nếu giường đích hết mức hoặc không được cung cấp, không chọn được. Nếu cần đổi chỗ trẻ để không vượt sức chứa, xem trước sẽ nói rõ. Chuyển trẻ sang suất tiêu chuẩn còn trống có thể làm phụ thu trẻ biến mất.
