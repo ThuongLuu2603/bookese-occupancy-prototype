@@ -26,10 +26,11 @@ test('mixed room types choose the cheaper legal surcharge without customer alloc
  assert.equal(groups.reduce((n,g)=>n+g.total,0),q.total);
  const html=aggregateRoomsHTML(groups,1);assert(!html.includes('Người lớn 5'));assert(!html.includes('Phòng 1'));
 });
-test('automatic bed assignment also minimizes child versus adult surcharges',()=>{
+test('younger children use existing beds even when their surcharge exceeds the adult fee',()=>{
  const c=initialConfig();c.childFee=500000;const s={...stay,adults:3,children:[8],rooms:1};
- const q=quoteAutomatic({b:1},s,c);assert(q.valid);assert.equal(q.total,1150000);
- assert.equal(q.quotes[0].lines.filter(l=>l.type==='guest'&&l.amount>0).length,1);assert.equal(q.quotes[0].lines.find(l=>l.type==='guest'&&l.amount>0).amount,150000);
+ const q=quoteAutomatic({b:1},s,c);assert(q.valid);assert.equal(q.total,1500000);
+ assert.equal(q.allocation[0].bedIds.length,1);assert(!q.allocation[0].bedIds.includes('c0'));
+ assert.equal(q.quotes[0].lines.filter(l=>l.type==='guest'&&l.amount>0).length,1);assert.equal(q.quotes[0].lines.find(l=>l.type==='guest'&&l.amount>0).amount,500000);
 });
 test('free children and child limits still constrain each individual room',()=>{
  const c=example();c.rooms.forEach(r=>r.children=1);const s={...stay,adults:2,children:[2,3,4]};
@@ -50,7 +51,7 @@ test('automatic checkout confirms room types and services, never numbered-room g
 });
 test('automatic recommendations cover every guest and all selected types remain valid',()=>{
  const c=initialConfig(),s={...stay,adults:3,children:[5,8,12]};
- for(const rec of automaticRecommendations(s,c))assert(validateBooking(rec.allocation,{...s,rooms:rec.rooms.length},c).valid);
+ for(const rec of automaticRecommendations(s,c))assert(validateBooking(rec.allocation,{...s,rooms:rec.rooms.length,includeChildrenInBase:true},c).valid);
 });
 
 
@@ -63,8 +64,8 @@ test('five adults plus a child in three standard-double rooms have no surcharge'
  assert(html.includes('2.100.000đ'));assert(html.includes('Không phát sinh phụ thu'));
  const manual=validateBooking(q.allocation,{...s,rooms:3},c);
  assert.equal(manual.total,2200000,'option 1 retains its original child policy');
- const two=quoteAutomatic({a:2},s,c);assert(two.valid);assert.equal(two.total,1800000);
- assert.equal(automaticSummary(two.allocation,two.search,c)[0].fees[0].count,2);
+ const two=quoteAutomatic({a:2},s,c);assert(two.valid);assert.equal(two.total,1700000);
+ assert.equal(automaticSummary(two.allocation,two.search,c)[0].fees[0].count,1);assert.equal(automaticSummary(two.allocation,two.search,c)[0].fees.find(f=>f.category==='child').amount,100000);
 });
 
 test('child fees only apply outside room-standard occupancy, including without extra beds',()=>{
@@ -78,6 +79,30 @@ test('child fees only apply outside room-standard occupancy, including without e
 test('unused standard slots cannot bypass each room child limit',()=>{
  const c=initialConfig();c.rooms[0].children=0;
  const q=quoteAutomatic({a:1,b:1},{...stay,adults:2,children:[8,9]},c);
- assert(q.valid);assert.equal(q.total,1700000);
- assert.equal(automaticSummary(q.allocation,q.search,c).find(g=>g.roomId==='b').fees[0].category,'bed');
+ assert(q.valid);assert.equal(q.total,1600000);
+ assert.equal(automaticSummary(q.allocation,q.search,c).find(g=>g.roomId==='b').fees[0].category,'child');
+});
+
+
+test('two double rooms: adult extra bed plus age-priced child sharing, consistent through checkout',()=>{
+ const c=initialConfig();
+ for(const [age,total,bedCount,childAmount] of [[5,1600000,1,0],[8,1700000,1,100000],[12,1800000,2,null]]){
+  const s={...stay,children:[age]},q=quoteAutomatic({a:2},s,c),g=automaticSummary(q.allocation,q.search,c)[0];
+  assert(q.valid);assert.equal(q.total,total);assert.equal(g.fees.find(f=>f.category==='bed').count,bedCount);
+  assert.equal(g.fees.find(f=>f.category==='child')?.amount??null,childAmount);
+  assert.equal(validateBooking(q.allocation,q.search,c).total,total);
+  const rec=automaticRecommendations(s,c).find(r=>r.ratePlanId==='standard'&&r.rooms.length===2&&r.rooms.every(id=>id==='a'));
+  assert.equal(rec.total,total);
+  if(age===8){const html=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:true});assert(html.includes('1.700.000đ'));assert(html.includes('Phụ thu trẻ em · giường có sẵn'));}
+ }
+ c.bedIncludesGuest=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1850000);
+ c.extraEnabled=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1650000);
+});
+
+test('sharing children still respect individual total and child capacity limits',()=>{
+ const c=initialConfig();
+ assert(!quoteAutomatic({a:1},{...stay,adults:3,children:[8]},c).valid);
+ assert(!quoteAutomatic({a:1},{...stay,adults:1,children:[8,9]},c).valid);
+ const manual=recommendations({...stay,children:[8]},c).find(r=>r.ratePlanId==='standard'&&r.rooms.every(id=>id==='a'));
+ assert.equal(manual.total,1800000,'option 1 keeps its existing bed-first rule');
 });
