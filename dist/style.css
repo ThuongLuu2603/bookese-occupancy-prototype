@@ -26,3 +26,5 @@
 .service-modal{display:flex;flex-direction:column;overflow:hidden}.service-modal .modal-head,.service-modal .modal-footer{flex-shrink:0}.service-modal .modal-body{min-height:0;overflow:auto;padding:18px 24px}.service-modal .transfer-destinations{margin:12px 0}.service-modal .transfer-preview{padding:12px 16px}.service-modal .transfer-preview>p{margin-bottom:8px}.service-modal .transfer-room-result{padding:6px 0}
 
 .transfer-notice{scroll-margin-top:48px}
+
+.auto-booking-fees{border-top:1px solid #dce6f1;margin-top:12px;padding-top:12px}.auto-booking-fees>.booking-line{margin-top:10px}

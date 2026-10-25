@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialConfig,recommendations,validateBooking} from '../dist/engine.js';
-import {automaticRecommendations,quoteAutomatic,automaticSummary,aggregateRoomsHTML} from '../dist/automatic.js';
+import {automaticRecommendations,quoteAutomatic,automaticSummary,aggregateRoomsHTML,bookingFees,bookingFeeLabel,automaticTable} from '../dist/automatic.js';
 import {checkoutContent} from '../dist/checkout.js';
 const stay={in:'2026-11-10',out:'2026-11-11',adults:5,children:[],rooms:2,market:'Đà Nẵng'};
 function example(){const c=initialConfig();c.rooms=c.rooms.slice(0,2);Object.assign(c.rooms[0],{base:2,max:4,adults:4,children:2});Object.assign(c.rooms[1],{base:3,max:5,adults:5,children:2});return c;}
@@ -93,7 +93,7 @@ test('two double rooms: adult extra bed plus age-priced child sharing, consisten
   assert.equal(validateBooking(q.allocation,q.search,c).total,total);
   const rec=automaticRecommendations(s,c).find(r=>r.ratePlanId==='standard'&&r.rooms.length===2&&r.rooms.every(id=>id==='a'));
   assert.equal(rec.total,total);
-  if(age===8){const html=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:true});assert(html.includes('1.700.000đ'));assert(html.includes('Phụ thu trẻ em · giường có sẵn'));}
+  if(age===8){const html=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:true});assert(html.includes('1.700.000đ'));assert(html.includes('Phụ thu trẻ em (100.000đ) × 1'));}
  }
  c.bedIncludesGuest=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1850000);
  c.extraEnabled=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1650000);
@@ -105,4 +105,41 @@ test('sharing children still respect individual total and child capacity limits'
  assert(!quoteAutomatic({a:1},{...stay,adults:1,children:[8,9]},c).valid);
  const manual=recommendations({...stay,children:[8]},c).find(r=>r.ratePlanId==='standard'&&r.rooms.every(id=>id==='a'));
  assert.equal(manual.total,1700000,'both modes share the same child-sharing rule');
+});
+
+
+test('PA2 mixed booking exposes only booking-wide fees in table, checkout and confirmation',()=>{
+ const c=initialConfig(),s={...stay,children:[8]},q=quoteAutomatic({a:1,b:1},s,c);
+ assert(q.valid);assert.equal(q.total,1800000);
+ const groups=automaticSummary(q.allocation,q.search,c),fees=bookingFees(groups);
+ assert.deepEqual(fees.map(f=>[f.category,f.unit,f.count]),[['child',100000,1],['bed',200000,1]]);
+ const table=automaticTable({config:c,search:s,selected:{a:1,b:1},selectedPlan:'standard',quote:q,recs:[]});
+ const checkout=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:true});
+ const confirmation=aggregateRoomsHTML(groups,1);
+ for(const html of [table,checkout,confirmation]){
+  assert(html.includes('Awaken Da Nang Hotel × 1'));assert(html.includes('alo ha × 1'));
+  assert(html.includes('Phụ thu trẻ em (100.000đ) × 1'));assert(html.includes('Giường phụ (200.000đ) × 1'));
+  assert(!html.includes('auto-type-fees'));assert(!html.includes('Tổng loại phòng'));
+  assert(!html.includes('1.000.000đ'),'do not expose alo ha total including assigned bed');
+ }
+ const roomSections=[...confirmation.matchAll(/<div class="booking-room auto-confirm-type">(.*?)<\/p><\/div>/g)];
+ assert.equal(roomSections.length,2);
+ assert(roomSections.every(m=>!m[1].includes('Giường phụ')&&!m[1].includes('Phụ thu trẻ em')));
+ assert(!checkout.includes('alo ha · Giường phụ'));assert(!checkout.includes('Phòng 1'));
+ const manual=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:false});
+ assert(manual.includes('Phòng 1'));assert(manual.includes('1.000.000đ'),'PA1 retains room-specific pricing');
+});
+
+test('booking fees combine equal unit prices across types, keep distinct prices and multiply nights once',()=>{
+ const c=initialConfig(),s={...stay,adults:6,out:'2026-11-13'};c.rooms[1].adults=3;
+ const q=quoteAutomatic({a:1,b:1},s,c);
+ assert(q.valid);
+ const groups=automaticSummary(q.allocation,q.search,c),fees=bookingFees(groups);
+ assert.equal(fees.length,1);assert.equal(fees[0].count,2);assert.equal(fees[0].amount,1200000);
+ assert.equal(bookingFeeLabel(fees[0],3),'Giường phụ (200.000đ/đêm) × 2 × 3 đêm');
+ assert.equal(groups.reduce((n,g)=>n+g.base,0)+fees.reduce((n,f)=>n+f.amount,0),q.total);
+ c.rooms[1].bedPrice=250000;
+ const changed=quoteAutomatic({a:1,b:1},s,c),split=bookingFees(automaticSummary(changed.allocation,changed.search,c));
+ assert.deepEqual(split.map(f=>[f.unit,f.count,f.amount]),[[200000,1,600000],[250000,1,750000]]);
+ assert(split.every(f=>!('roomId' in f)&&!('room' in f)&&!('guest' in f)));
 });

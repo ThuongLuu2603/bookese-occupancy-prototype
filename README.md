@@ -58,7 +58,7 @@ Mở `?mode=automatic#/customer/hotel`; thêm `&sample=ab` trước hash để d
 - Tìm nhiều phòng: đề xuất rẻ nhất trong các tổ hợp từ 1 đến số phòng đã tìm. Hiển thị rõ số phòng thực tế khi khác yêu cầu. Khách có thể tự chọn nhiều phòng hơn (tối đa 6) nếu tồn kho và số người lớn cho phép. Cả hai phương án dùng cùng quy tắc đề xuất và chọn số phòng.
 - Mỗi lần thay đổi số lượng/gói giá, tối ưu lại cách phân khách và giường nội bộ. Giường phụ áp dụng trước cho khách tính giá người lớn vượt tiêu chuẩn; trẻ nhỏ dùng giường có sẵn; không gộp sức chứa/giới hạn trẻ em của các phòng thành một giới hạn chung. Suất tiêu chuẩn ưu tiên khách tính giá người lớn, rồi đến trẻ em. Không tự thêm giường phụ cho trẻ dưới mốc giá người lớn.
 - Nếu chưa đủ chỗ: chỉ báo giá tạm tính cho tập khách lớn nhất có thể chứa, nêu số khách chưa có chỗ và khóa đặt phòng. Báo giá này không được chuyển thành đơn đặt phòng.
-- Checkout, xác nhận và đơn Extranet gom theo loại phòng: số phòng, số giường phụ, số phụ thu giá người lớn, số phụ thu trẻ em, đơn giá và tổng tiền. Không công bố khách nào ở phòng số mấy. Bằng chứng phân bổ hợp lệ vẫn được giữ nội bộ để kiểm tra giới hạn và giá; đổi loại/số lượng phải tính lại toàn bộ, không cho tự chuyển phụ thu.
+- PA2 hiển thị số lượng từng loại phòng và phụ thu toàn đơn riêng biệt tại bảng Phòng trống, checkout, xác nhận và đơn Extranet. Gộp số lượng phụ thu cùng loại/cùng đơn giá giữa các loại phòng; khác đơn giá tách dòng. Không công bố phụ thu, giường phụ hay khách thuộc phòng nào; giá theo loại phòng chỉ là giá cơ bản, không kèm phụ thu. Bằng chứng phân bổ hợp lệ vẫn được giữ nội bộ để kiểm tra giới hạn và giá; đổi loại/số lượng phải tính lại toàn bộ, không cho tự chuyển phụ thu.
 - A×1 cho 5 người: tạm tính 4/5 khách = 1.050.000đ, chưa được đặt. A×2: 1.600.000đ, chỉ 1 giường phụ. B×1: 1.150.000đ, đủ 5 khách với 1 giường phụ và 1 phụ thu người lớn dùng giường có sẵn. A+B: 1.500.000đ, không phụ thu, tổng tiêu chuẩn 5.
 
 Đây là phương án sản phẩm Bookese theo yêu cầu, không khẳng định là quy tắc chung của Booking.com.
@@ -75,7 +75,7 @@ Trong cả hai phương án, trẻ dưới mốc giá người lớn có thể n
 
 ## Quy tắc dùng chung cho PA 1 và PA 2
 
-Cùng cấu hình, gói giá, số phòng và cách bố trí sẽ có cùng giá. PA 1 cho khách chuyển người và điều chỉnh giường cho khách tính giá người lớn, PA 2 tự bố trí và chỉ xác nhận số dịch vụ theo loại phòng. Khi chuyển người ở PA 1, tính lại giường và phụ thu; bố trí vượt sức chứa/giới hạn trẻ em/người lớn bị khóa đặt. Trẻ dưới mốc giá người lớn không chọn giường phụ. Chọn 3 phòng dù tìm 2 phòng được phép; checkout dùng số phòng thực chọn.
+Cùng cấu hình, gói giá, số phòng và cách bố trí sẽ có cùng giá. PA 1 cho khách chuyển người và điều chỉnh giường cho khách tính giá người lớn, PA 2 tự bố trí và chỉ xác nhận số dịch vụ toàn đơn, không gắn dịch vụ với loại phòng. Khi chuyển người ở PA 1, tính lại giường và phụ thu; bố trí vượt sức chứa/giới hạn trẻ em/người lớn bị khóa đặt. Trẻ dưới mốc giá người lớn không chọn giường phụ. Chọn 3 phòng dù tìm 2 phòng được phép; checkout dùng số phòng thực chọn.
 
 Case 5 người lớn + trẻ 8 tuổi: 2 Awaken = 1.700.000đ (1 giường phụ + 1 phí trẻ); 3 Awaken tối ưu = 2.100.000đ, không phụ thu. Nếu khách tự dồn người vào một phòng dù phòng khác còn suất, phí được tính theo bố trí thực tế từng phòng. Hai phương án cùng dùng `suggestedBeds`, `priceRoom`, `validateBooking`, `quoteAutomatic` và bộ đề xuất; thay đổi quy tắc sau này áp dụng cả hai.
 
