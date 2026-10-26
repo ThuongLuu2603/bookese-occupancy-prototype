@@ -20,14 +20,14 @@ test('B×1 fits five guests and is recommended ahead of more expensive A×2',()=
  assert(recommendations(stay,c).every(r=>r.rooms.length===2),'original manual recommendations still require two rooms');
 });
 test('mixed room types choose the cheaper legal surcharge without customer allocation',()=>{
- const c=initialConfig();c.rooms[0].bedPrice=500000;c.rooms[1].bedPrice=100000;
+ const c=initialConfig();c.extraEnabled=false;c.rooms[0].adultFee=500000;c.rooms[1].adultFee=100000;
  const q=quoteAutomatic({a:1,b:1},stay,c);assert(q.valid);assert.equal(q.total,1600000);
  const groups=automaticSummary(q.allocation,q.search,c);assert.equal(groups[0].fees.length,0);assert.equal(groups[1].fees[0].amount,100000);
  assert.equal(groups.reduce((n,g)=>n+g.total,0),q.total);
  const html=aggregateRoomsHTML(groups,1);assert(!html.includes('Người lớn 5'));assert(!html.includes('Phòng 1'));
 });
 test('younger children use existing beds even when their surcharge exceeds the adult fee',()=>{
- const c=initialConfig();c.childFee=500000;const s={...stay,adults:3,children:[8],rooms:1};
+ const c=initialConfig();c.rooms[1].childFee=500000;const s={...stay,adults:3,children:[8],rooms:1};
  const q=quoteAutomatic({b:1},s,c);assert(q.valid);assert.equal(q.total,1500000);
  assert.equal(q.allocation[0].bedIds.length,1);assert(!q.allocation[0].bedIds.includes('c0'));
  assert.equal(q.quotes[0].lines.filter(l=>l.type==='guest'&&l.amount>0).length,1);assert.equal(q.quotes[0].lines.find(l=>l.type==='guest'&&l.amount>0).amount,500000);
@@ -130,7 +130,7 @@ test('PA2 mixed booking exposes only booking-wide fees in table, checkout and co
  assert(manual.includes('Phòng 1'));assert(manual.includes('1.000.000đ'),'PA1 retains room-specific pricing');
 });
 
-test('booking fees combine equal unit prices across types, keep distinct prices and multiply nights once',()=>{
+test('booking fees combine shared bed prices across types and multiply nights once',()=>{
  const c=initialConfig(),s={...stay,adults:6,out:'2026-11-13'};c.rooms[1].adults=3;
  const q=quoteAutomatic({a:1,b:1},s,c);
  assert(q.valid);
@@ -138,8 +138,8 @@ test('booking fees combine equal unit prices across types, keep distinct prices 
  assert.equal(fees.length,1);assert.equal(fees[0].count,2);assert.equal(fees[0].amount,1200000);
  assert.equal(bookingFeeLabel(fees[0],3),'Giường phụ (200.000đ/đêm) × 2 × 3 đêm');
  assert.equal(groups.reduce((n,g)=>n+g.base,0)+fees.reduce((n,f)=>n+f.amount,0),q.total);
- c.rooms[1].bedPrice=250000;
+ c.bedPrice=250000;
  const changed=quoteAutomatic({a:1,b:1},s,c),split=bookingFees(automaticSummary(changed.allocation,changed.search,c));
- assert.deepEqual(split.map(f=>[f.unit,f.count,f.amount]),[[200000,1,600000],[250000,1,750000]]);
+ assert.deepEqual(split.map(f=>[f.unit,f.count,f.amount]),[[250000,2,1500000]]);
  assert(split.every(f=>!('roomId' in f)&&!('room' in f)&&!('guest' in f)));
 });

@@ -12,10 +12,10 @@ test('move extra bed from alo ha to Awaken with its guest, without changing coun
  assert(q.rows[0].bedIds.includes(bed.guestId));assert.deepEqual(rows,copy);assert(validateBooking(q.rows,s,c).valid);
 });
 
-test('extra bed transfer prices the destination across nights and keeps rate plan',()=>{
- const c=initialConfig();c.rooms[0].bedPrice=400000;const stay={...s,out:'2026-11-13'},rows=allocate([c.rooms[0],c.rooms[1]],stay,c,'flex');
+test('extra bed transfer keeps the shared price across nights and preserves rate plan',()=>{
+ const c=initialConfig();c.bedPrice=400000;const stay={...s,out:'2026-11-13'},rows=allocate([c.rooms[0],c.rooms[1]],stay,c,'flex');
  const bed=roomServices(rows,stay,c,1)[0],q=transferService(rows,stay,c,1,0,bed.guestId,'bed');
- assert(q.valid);assert.equal(q.delta,600000);assert(q.rows.every(r=>r.ratePlanId==='flex'));assert.equal(q.total,6600000);
+ assert(q.valid);assert.equal(q.delta,0);assert(q.rows.every(r=>r.ratePlanId==='flex'));assert.equal(q.total,6600000);
 });
 
 test('disabled extra beds and full bed allowance explain why transfer is unavailable',()=>{
