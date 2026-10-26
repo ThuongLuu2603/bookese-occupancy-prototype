@@ -103,3 +103,6 @@ Dữ liệu v4 dùng giá trẻ em của phòng đầu tiên làm giá chung; n�
 ### PA1: giữ vị trí phụ thu khi đổi số lượng phòng
 Khi khách thay đổi số lượng, tính lại phương án hợp lệ có tổng giá thấp nhất, sau đó ưu tiên giữ giường phụ/phụ thu ở loại phòng đang hiển thị bằng các lần chuyển hoặc đổi chỗ hợp lệ có cùng tổng tiền. Áp dụng cả bản tạm tính chưa đủ khách và bố trí khách đã chủ động chuyển. Không giữ khoản phụ thu đã hết cần thiết, không tăng giá để giữ vị trí và không vượt giới hạn phòng. PA2 tiếp tục tự tính độc lập.
 Ví dụ chọn 1 Awaken cho 5 người lớn: tạm tính 3 khách + 1 giường phụ. Thêm 1 alo ha: giữ 3 khách + 1 giường phụ tại Awaken, 2 khách tại alo ha, tổng 1.700.000đ. Nếu chọn đủ 3 phòng tiêu chuẩn 2 khách, phụ thu không còn cần thiết và được bỏ.
+
+### Tooltip chi tiết giá
+Nút ⓘ cạnh giá cơ bản 1 phòng/1 đêm ở cả PA1 và PA2. Tooltip dùng số phòng đang chọn (hoặc tham khảo 1 phòng), liệt kê từng đêm, thuế/phí đã bao gồm, tổng và xu dự kiến 2% như checkout. Prototype chưa cấu hình tách VAT/phí dịch vụ nên không tự tạo tỷ lệ hoặc cộng thuế lần nữa. PA1 lấy phụ thu từ báo giá đã kiểm tra của loại phòng; bản chưa đủ khách ghi tạm tính. PA2 chỉ hiển thị tiền phòng, hướng dẫn xem phụ thu toàn đơn tại Tổng tiền. Gói chưa chọn không nhận phụ thu từ gói khác. Tooltip mở bằng rê chuột, bấm hoặc bàn phím; Escape đóng.
