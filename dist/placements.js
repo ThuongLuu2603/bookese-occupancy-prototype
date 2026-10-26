@@ -1,4 +1,4 @@
-import {guestList,suggestedBeds,validateBooking,roomBeds,nights} from './engine.js?v=20261026-simple-policy';
+import {guestList,suggestedBeds,validateBooking,roomBeds,nights} from './engine.js?v=20261026-stable-placement';
 
 export function roomServices(rows,search,config,index){
  const v=validateBooking(rows,{...search,rooms:rows.length},config),guests=guestList(search);
@@ -10,7 +10,7 @@ export function roomServices(rows,search,config,index){
 
 // Move the service and its guest together. If needed, exchange one destination
 // guest; validate the complete booking and never mutate the original selection.
-export function transferService(rows,search,config,source,target,guestId,kind){
+export function transferService(rows,search,config,source,target,guestId,kind,maxTotal=Infinity){
  const stay={...search,rooms:rows.length},before=validateBooking(rows,stay,config),fail=reason=>({valid:false,reason});
  if(!before.valid)return fail('Hãy hoàn tất bố trí hợp lệ trước khi chuyển dịch vụ.');
  if(!Number.isInteger(source)||!Number.isInteger(target)||source===target||!rows[source]||!rows[target])return fail('Chọn một phòng khác đã đặt.');
@@ -31,7 +31,7 @@ export function transferService(rows,search,config,source,target,guestId,kind){
    if(next[source].bedIds.length!==rows[source].bedIds.length-1||next[target].bedIds.length!==rows[target].bedIds.length+1)continue;
    if(!next[target].bedIds.includes(guestId))next[target].bedIds[next[target].bedIds.length-1]=guestId;
   }
-  const after=validateBooking(next,stay,config);if(!after.valid)continue;
+  const after=validateBooking(next,stay,config);if(!after.valid||after.total>maxTotal)continue;
   candidates.push({valid:true,rows:next,total:after.total,delta:after.total-before.total,exchange,guestId,source,target,kind,quotes:after.quotes});
  }
  // Prefer a direct move so unrelated guests stay put; then the cheapest swap.
@@ -53,14 +53,14 @@ export function typeServices(rows,search,config,roomId){
  });
  return groups.sort((a,b)=>['bed','adult','child'].indexOf(a.kind)-['bed','adult','child'].indexOf(b.kind)||a.unit-b.unit);
 }
-export function transferTypeService(rows,search,config,sourceType,targetType,key){
+export function transferTypeService(rows,search,config,sourceType,targetType,key,maxTotal=Infinity){
  const fail=reason=>({valid:false,reason});
  if(sourceType===targetType)return fail('Chỉ chuyển phụ thu sang loại phòng khác đã chọn.');
  const service=typeServices(rows,search,config,sourceType).find(g=>g.key===key);
  if(!service)return fail('Dịch vụ đã thay đổi. Vui lòng chọn lại.');
  const targets=rows.map((r,i)=>r.roomId===targetType?i:-1).filter(i=>i>=0);
  if(!targets.length)return fail('Hãy chọn loại phòng nhận trước khi chuyển phụ thu.');
- const results=service.entries.flatMap(e=>targets.map(target=>transferService(rows,search,config,e.source,target,e.guestId,service.kind)));
+ const results=service.entries.flatMap(e=>targets.map(target=>transferService(rows,search,config,e.source,target,e.guestId,service.kind,maxTotal)));
  const valid=results.filter(r=>r.valid).sort((a,b)=>Number(!!a.exchange)-Number(!!b.exchange)||a.total-b.total||a.source-b.source||a.target-b.target);
  return valid[0]||fail([...new Set(results.map(r=>r.reason))].join(' '));
 }

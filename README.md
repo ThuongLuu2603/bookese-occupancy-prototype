@@ -99,3 +99,7 @@ PA1 hiển thị phụ thu và bố trí tạm tính ngay cả khi số phòng c
 ### UX rút gọn và giá trẻ em chung (v5)
 Ba khối: trẻ em (mốc tuổi + một giá chung), người lớn thêm (giá từng phòng), giường phụ (giá chung + bảng bật/tắt, số giường, sức chứa). Giải thích chi tiết được thu gọn. Không nhập giá trẻ em riêng cho từng phòng.
 Dữ liệu v4 dùng giá trẻ em của phòng đầu tiên làm giá chung; nếu các giá cũ khác nhau, hiển thị mục kiểm tra giá cũ có thể mở. Giữ nguyên giá người lớn từng phòng, mốc tuổi, giá giường phụ và giới hạn. v1–v3 giữ giá trẻ em chung cũ. Lưu bằng Cập nhật; không tự ghi đè cấu hình đã lưu.
+
+### PA1: giữ vị trí phụ thu khi đổi số lượng phòng
+Khi khách thay đổi số lượng, tính lại phương án hợp lệ có tổng giá thấp nhất, sau đó ưu tiên giữ giường phụ/phụ thu ở loại phòng đang hiển thị bằng các lần chuyển hoặc đổi chỗ hợp lệ có cùng tổng tiền. Áp dụng cả bản tạm tính chưa đủ khách và bố trí khách đã chủ động chuyển. Không giữ khoản phụ thu đã hết cần thiết, không tăng giá để giữ vị trí và không vượt giới hạn phòng. PA2 tiếp tục tự tính độc lập.
+Ví dụ chọn 1 Awaken cho 5 người lớn: tạm tính 3 khách + 1 giường phụ. Thêm 1 alo ha: giữ 3 khách + 1 giường phụ tại Awaken, 2 khách tại alo ha, tổng 1.700.000đ. Nếu chọn đủ 3 phòng tiêu chuẩn 2 khách, phụ thu không còn cần thiết và được bỏ.
