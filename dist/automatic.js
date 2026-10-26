@@ -1,4 +1,4 @@
-import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261026-room-fees';
+import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261026-partial-fees';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export const automaticBeds=suggestedBeds;

@@ -92,3 +92,5 @@ Ví dụ 5 người lớn, Awaken + alo ha: chuyển 1 giường phụ từ alo 
 - Giường phụ có một giá chung toàn chỗ nghỉ; từng loại phòng vẫn bật/tắt và giới hạn số giường riêng. Giường phụ ưu tiên trước cho khách tính giá người lớn thêm.
 - PA1, PA2, tìm kiếm, chuyển phụ thu và checkout dùng chung cách tính. Chuyển trẻ sang loại phòng khác tính lại theo giá phòng đích; đơn giá giường phụ chung không đổi.
 - Cấu hình v1–v3 được chuyển sang v4: sao chép giá trẻ/người lớn cũ vào từng phòng; đề xuất giá giường phụ từ loại phòng bật giường phụ đầu tiên (hoặc phòng đầu tiên có giá). Nếu giá cũ khác nhau, hiện thông báo để kiểm tra trước khi lưu. Các giá cũ được giữ trong thông báo đến khi nhấn Cập nhật. Không tự ghi đè localStorage trong lúc chuyển đổi.
+
+PA1 hiển thị phụ thu và bố trí tạm tính ngay cả khi số phòng chưa đủ cho cả nhóm. Chi tiết dùng đúng tập khách xếp được; checkout và chuyển phụ thu chờ đến khi đủ chỗ. Thay đổi số phòng tính lại toàn bộ bản tạm tính.
