@@ -27,7 +27,7 @@ test('mixed room types choose the cheaper legal surcharge without customer alloc
  const html=aggregateRoomsHTML(groups,1);assert(!html.includes('Người lớn 5'));assert(!html.includes('Phòng 1'));
 });
 test('younger children use existing beds even when their surcharge exceeds the adult fee',()=>{
- const c=initialConfig();c.rooms[1].childFee=500000;const s={...stay,adults:3,children:[8],rooms:1};
+ const c=initialConfig();c.childFee=500000;const s={...stay,adults:3,children:[8],rooms:1};
  const q=quoteAutomatic({b:1},s,c);assert(q.valid);assert.equal(q.total,1500000);
  assert.equal(q.allocation[0].bedIds.length,1);assert(!q.allocation[0].bedIds.includes('c0'));
  assert.equal(q.quotes[0].lines.filter(l=>l.type==='guest'&&l.amount>0).length,1);assert.equal(q.quotes[0].lines.find(l=>l.type==='guest'&&l.amount>0).amount,500000);

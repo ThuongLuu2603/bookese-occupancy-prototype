@@ -1,4 +1,4 @@
-import {guestList,suggestedBeds,validateBooking,roomBeds,nights} from './engine.js?v=20261026-partial-fees';
+import {guestList,suggestedBeds,validateBooking,roomBeds,nights} from './engine.js?v=20261026-simple-policy';
 
 export function roomServices(rows,search,config,index){
  const v=validateBooking(rows,{...search,rooms:rows.length},config),guests=guestList(search);

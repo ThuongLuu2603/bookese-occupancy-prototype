@@ -88,9 +88,14 @@ Ví dụ 5 người lớn, Awaken + alo ha: chuyển 1 giường phụ từ alo 
 
 
 ### Cấu hình phụ thu theo loại phòng (26/10)
-- Mốc tuổi dùng chung. Bảng giá giường có sẵn có hai cột giá theo từng loại phòng: trẻ em và người lớn/trẻ đạt mốc giá người lớn. Trẻ dưới mốc miễn phí giữ 0đ.
+- Mốc tuổi và một giá trẻ em dùng chung cho toàn chỗ nghỉ. Chỉ giá người lớn/trẻ đạt mốc giá người lớn được cài riêng theo loại phòng. Trẻ dưới mốc miễn phí giữ 0đ.
 - Giường phụ có một giá chung toàn chỗ nghỉ; từng loại phòng vẫn bật/tắt và giới hạn số giường riêng. Giường phụ ưu tiên trước cho khách tính giá người lớn thêm.
-- PA1, PA2, tìm kiếm, chuyển phụ thu và checkout dùng chung cách tính. Chuyển trẻ sang loại phòng khác tính lại theo giá phòng đích; đơn giá giường phụ chung không đổi.
-- Cấu hình v1–v3 được chuyển sang v4: sao chép giá trẻ/người lớn cũ vào từng phòng; đề xuất giá giường phụ từ loại phòng bật giường phụ đầu tiên (hoặc phòng đầu tiên có giá). Nếu giá cũ khác nhau, hiện thông báo để kiểm tra trước khi lưu. Các giá cũ được giữ trong thông báo đến khi nhấn Cập nhật. Không tự ghi đè localStorage trong lúc chuyển đổi.
+- PA1, PA2, tìm kiếm, chuyển phụ thu và checkout dùng chung cách tính. Chuyển trẻ sang loại phòng khác giữ đơn giá trẻ em chung; chỉ phát sinh phí khi vượt suất tiêu chuẩn. Đơn giá giường phụ chung không đổi.
+- Lịch sử chuyển sang v4: sao chép giá trẻ/người lớn cũ vào từng phòng; đề xuất giá giường phụ từ loại phòng bật giường phụ đầu tiên (hoặc phòng đầu tiên có giá). Nếu giá cũ khác nhau, hiện thông báo để kiểm tra trước khi lưu. Các giá cũ được giữ trong thông báo đến khi nhấn Cập nhật. Không tự ghi đè localStorage trong lúc chuyển đổi.
 
 PA1 hiển thị phụ thu và bố trí tạm tính ngay cả khi số phòng chưa đủ cho cả nhóm. Chi tiết dùng đúng tập khách xếp được; checkout và chuyển phụ thu chờ đến khi đủ chỗ. Thay đổi số phòng tính lại toàn bộ bản tạm tính.
+
+
+### UX rút gọn và giá trẻ em chung (v5)
+Ba khối: trẻ em (mốc tuổi + một giá chung), người lớn thêm (giá từng phòng), giường phụ (giá chung + bảng bật/tắt, số giường, sức chứa). Giải thích chi tiết được thu gọn. Không nhập giá trẻ em riêng cho từng phòng.
+Dữ liệu v4 dùng giá trẻ em của phòng đầu tiên làm giá chung; nếu các giá cũ khác nhau, hiển thị mục kiểm tra giá cũ có thể mở. Giữ nguyên giá người lớn từng phòng, mốc tuổi, giá giường phụ và giới hạn. v1–v3 giữ giá trẻ em chung cũ. Lưu bằng Cập nhật; không tự ghi đè cấu hình đã lưu.

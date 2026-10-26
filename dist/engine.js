@@ -1,14 +1,14 @@
-export const initialConfig = () => ({version:4,allowChildren:true,childFreeBelow:6,adultFrom:12,bedPrice:200000,extraEnabled:true,bedIncludesGuest:true,rooms:[
- {id:'a',name:'Awaken Da Nang Hotel',base:2,max:3,adults:3,children:1,beds:1,childFee:100000,adultFee:150000,bedEnabled:true,inventory:12,price:700000,flexPrice:850000},
- {id:'b',name:'alo ha',base:2,max:5,adults:4,children:2,beds:1,childFee:100000,adultFee:150000,bedEnabled:true,inventory:1,price:800000,flexPrice:950000},
- {id:'c',name:'Leo Truong',base:2,max:3,adults:2,children:1,beds:1,childFee:100000,adultFee:150000,bedEnabled:true,inventory:0,price:700000,flexPrice:850000},
- {id:'d',name:'Phòng Gia đình',base:4,max:5,adults:5,children:2,beds:1,childFee:100000,adultFee:150000,bedEnabled:true,inventory:2,price:1500000,flexPrice:1700000}
+export const initialConfig = () => ({version:5,allowChildren:true,childFreeBelow:6,adultFrom:12,childFee:100000,bedPrice:200000,extraEnabled:true,bedIncludesGuest:true,rooms:[
+ {id:'a',name:'Awaken Da Nang Hotel',base:2,max:3,adults:3,children:1,beds:1,adultFee:150000,bedEnabled:true,inventory:12,price:700000,flexPrice:850000},
+ {id:'b',name:'alo ha',base:2,max:5,adults:4,children:2,beds:1,adultFee:150000,bedEnabled:true,inventory:1,price:800000,flexPrice:950000},
+ {id:'c',name:'Leo Truong',base:2,max:3,adults:2,children:1,beds:1,adultFee:150000,bedEnabled:true,inventory:0,price:700000,flexPrice:850000},
+ {id:'d',name:'Phòng Gia đình',base:4,max:5,adults:5,children:2,beds:1,adultFee:150000,bedEnabled:true,inventory:2,price:1500000,flexPrice:1700000}
 ]});
 // Migrate shared existing-bed fees to room types and use one property-wide bed rate.
 export function normalizeConfig(saved){
  const defaults=initialConfig();
- if(!saved||![1,2,3,4].includes(saved.version)||!Array.isArray(saved.rooms))return defaults;
- const c={...defaults,...saved,version:4,rooms:saved.rooms.map(r=>({...r}))};
+ if(!saved||![1,2,3,4,5].includes(saved.version)||!Array.isArray(saved.rooms))return defaults;
+ const c={...defaults,...saved,version:5,rooms:saved.rooms.map(r=>({...r}))};
  delete c.preferBed;delete c.confirmation;
  c.rooms.forEach(r=>{delete r.noBed;if(saved.version<3){if(r.id==='b'&&r.price===700000)r.price=800000;r.flexPrice=r.price+150000;}});
  if(saved.version<3&&!c.rooms.some(r=>r.id==='d'))c.rooms.push({...defaults.rooms.find(r=>r.id==='d')});
@@ -18,7 +18,12 @@ export function normalizeConfig(saved){
   if(new Set(oldBeds.map(r=>r.bedPrice)).size>1)c.legacyBedPrices=oldBeds.map(r=>({name:r.name,price:r.bedPrice}));
   c.rooms.forEach(r=>{r.childFee=saved.childFee??100000;r.adultFee=saved.adultFee??150000;});
  }
- delete c.childFee;delete c.adultFee;c.rooms.forEach(r=>delete r.bedPrice);
+ if(saved.version===4){
+  const oldChildren=saved.rooms.filter(r=>Number.isFinite(r.childFee));
+  c.childFee=oldChildren[0]?.childFee??defaults.childFee;
+  if(new Set(oldChildren.map(r=>r.childFee)).size>1)c.legacyChildPrices=oldChildren.map(r=>({name:r.name,price:c.childFee}));
+ }
+ delete c.adultFee;c.rooms.forEach(r=>{delete r.bedPrice;delete r.childFee;});
  return c;
 }
 export const ratePlans=[
@@ -34,7 +39,7 @@ export const money=n=>new Intl.NumberFormat('vi-VN').format(n)+'đ';
 export function nights(s){return Math.max(0,Math.round((Date.parse(s.out+'T00:00:00Z')-Date.parse(s.in+'T00:00:00Z'))/86400000));}
 export function roomBeds(r,c){return c.extraEnabled&&r.bedEnabled?r.beds:0;}
 export function guestList(s){return [...Array.from({length:s.adults},(_,i)=>({id:'a'+i,label:'Người lớn '+(i+1),adult:true})),...s.children.map((age,i)=>({id:'c'+i,label:'Trẻ '+(i+1)+' · '+age+' tuổi',age,adult:false}))];}
-export function configErrors(c){const errors=[];if(!Number.isInteger(c.childFreeBelow)||!Number.isInteger(c.adultFrom)||c.childFreeBelow<0||c.childFreeBelow>=c.adultFrom||c.adultFrom>18)errors.push('Mốc tuổi phải liên tục: tuổi miễn phí nhỏ hơn tuổi tính giá người lớn (tối đa 18).');if([c.bedPrice].some(v=>!Number.isInteger(v)||v<0))errors.push('Phụ thu phải là số từ 0 trở lên.');for(const r of c.rooms){if(['base','max','adults','children','beds','inventory','price','childFee','adultFee'].some(k=>!Number.isFinite(r[k])||r[k]<0||!Number.isInteger(r[k])))errors.push(r.name+': các giá trị phải là số nguyên không âm.');if(r.base<1||r.adults<1||r.max<r.base||r.adults>r.max||r.children>=r.max)errors.push(r.name+': kiểm tra khách tiêu chuẩn, tổng tối đa, người lớn và trẻ em.');if(r.flexPrice!=null&&(!Number.isInteger(r.flexPrice)||r.flexPrice<0))errors.push(r.name+': giá linh hoạt không hợp lệ.');if(roomBeds(r,c)>r.max-r.base)errors.push(r.name+': số giường phụ không được vượt sức chứa tối đa trừ số khách tiêu chuẩn.');}return errors;}
+export function configErrors(c){const errors=[];if(!Number.isInteger(c.childFreeBelow)||!Number.isInteger(c.adultFrom)||c.childFreeBelow<0||c.childFreeBelow>=c.adultFrom||c.adultFrom>18)errors.push('Mốc tuổi phải liên tục: tuổi miễn phí nhỏ hơn tuổi tính giá người lớn (tối đa 18).');if([c.bedPrice,c.childFee].some(v=>!Number.isInteger(v)||v<0))errors.push('Phụ thu phải là số từ 0 trở lên.');for(const r of c.rooms){if(['base','max','adults','children','beds','inventory','price','adultFee'].some(k=>!Number.isFinite(r[k])||r[k]<0||!Number.isInteger(r[k])))errors.push(r.name+': các giá trị phải là số nguyên không âm.');if(r.base<1||r.adults<1||r.max<r.base||r.adults>r.max||r.children>=r.max)errors.push(r.name+': kiểm tra khách tiêu chuẩn, tổng tối đa, người lớn và trẻ em.');if(r.flexPrice!=null&&(!Number.isInteger(r.flexPrice)||r.flexPrice<0))errors.push(r.name+': giá linh hoạt không hợp lệ.');if(roomBeds(r,c)>r.max-r.base)errors.push(r.name+': số giường phụ không được vượt sức chứa tối đa trừ số khách tiêu chuẩn.');}return errors;}
 export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
  const adults=guests.filter(g=>g.adult).length, kids=guests.filter(g=>!g.adult), bedSet=new Set(bedIds), days=nights(stay), errors=[];
  const ratedGuests=guests.filter(g=>g.adult||g.age>=c.adultFrom);
@@ -52,13 +57,13 @@ export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
  if(days<1)errors.push('Ngày trả phòng phải sau ngày nhận phòng.');
  // Included slots go to existing-bed guests first. A bundled extra bed must not
  // make an arbitrary guest ID consume an included slot and bill another guest.
- const guestFee=g=>g.adult||g.age>=c.adultFrom?r.adultFee:g.age<c.childFreeBelow?0:r.childFee;
+ const guestFee=g=>g.adult||g.age>=c.adultFrom?r.adultFee:g.age<c.childFreeBelow?0:c.childFee;
  const eligible=guests;
  const included=new Set([...eligible].sort((a,b)=>Number(bedSet.has(a.id))-Number(bedSet.has(b.id))||(Number(b.adult||b.age>=c.adultFrom)-Number(a.adult||a.age>=c.adultFrom)||guestFee(b)-guestFee(a))).slice(0,r.base).map(g=>g.id));
  const extra=new Set(guests.filter(g=>(g.adult||g.age>=c.adultFrom)&&!included.has(g.id)).map(g=>g.id));
  const basePrice=ratePrice(r,ratePlanId);if(!ratePlan(ratePlanId)||!Number.isFinite(basePrice)||basePrice<0)errors.push('Gói giá không còn khả dụng.');
  const lines=[{label:'Giá phòng · '+(ratePlan(ratePlanId)?.name||'Không hợp lệ')+' · '+days+' đêm',amount:(basePrice||0)*days,type:'base'}];
- for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=r.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom&&!included.has(g.id)){fee=g.age<c.childFreeBelow?0:r.childFee;description=g.label+' · dùng giường có sẵn';}
+ for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=r.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom&&!included.has(g.id)){fee=g.age<c.childFreeBelow?0:c.childFee;description=g.label+' · dùng giường có sẵn';}
  if(bedSet.has(g.id)){if(!c.bedIncludesGuest&&fee>0)lines.push({label:g.label+' · phụ thu lưu trú',amount:fee*days,type:'guest',guest:g.id});lines.push({label:g.label+' · 1 giường phụ'+(c.bedIncludesGuest?' (đã gồm phụ thu người sử dụng)':''),amount:c.bedPrice*days,type:'bed',guest:g.id});}
  else if(description)lines.push({label:description,amount:fee*days,type:'guest',guest:g.id});}
  return {valid:errors.length===0,errors,lines,total:lines.reduce((s,l)=>s+l.amount,0),requiredBeds:required};
