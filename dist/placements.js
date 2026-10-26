@@ -1,4 +1,4 @@
-import {guestList,suggestedBeds,validateBooking,roomBeds} from './engine.js?v=20261026-adult-fee-row';
+import {guestList,suggestedBeds,validateBooking,roomBeds,nights} from './engine.js?v=20261026-type-transfer';
 
 export function roomServices(rows,search,config,index){
  const v=validateBooking(rows,{...search,rooms:rows.length},config),guests=guestList(search);
@@ -37,4 +37,30 @@ export function transferService(rows,search,config,source,target,guestId,kind){
  // Prefer a direct move so unrelated guests stay put; then the cheapest swap.
  candidates.sort((a,b)=>Number(!!a.exchange)-Number(!!b.exchange)||a.total-b.total);
  return candidates[0]||fail('Không thể chuyển với bố trí hiện tại: cần giữ giới hạn tổng khách, người lớn, trẻ em và ít nhất 1 người lớn mỗi phòng.');
+}
+
+// Customer controls act on a room type; individual room placement stays internal.
+export function typeServices(rows,search,config,roomId){
+ const groups=[];
+ rows.forEach((row,source)=>{
+  if(row.roomId!==roomId)return;
+  for(const service of roomServices(rows,search,config,source)){
+   const label=service.kind==='bed'?'Giường phụ':service.label,unit=service.amount/nights(search),key=service.kind+'|'+label+'|'+unit;
+   let group=groups.find(g=>g.key===key);
+   if(!group){group={key,kind:service.kind,label,unit,count:0,entries:[]};groups.push(group);}
+   group.count++;group.entries.push({source,guestId:service.guestId});
+  }
+ });
+ return groups.sort((a,b)=>['bed','adult','child'].indexOf(a.kind)-['bed','adult','child'].indexOf(b.kind)||a.unit-b.unit);
+}
+export function transferTypeService(rows,search,config,sourceType,targetType,key){
+ const fail=reason=>({valid:false,reason});
+ if(sourceType===targetType)return fail('Chỉ chuyển phụ thu sang loại phòng khác đã chọn.');
+ const service=typeServices(rows,search,config,sourceType).find(g=>g.key===key);
+ if(!service)return fail('Dịch vụ đã thay đổi. Vui lòng chọn lại.');
+ const targets=rows.map((r,i)=>r.roomId===targetType?i:-1).filter(i=>i>=0);
+ if(!targets.length)return fail('Hãy chọn loại phòng nhận trước khi chuyển phụ thu.');
+ const results=service.entries.flatMap(e=>targets.map(target=>transferService(rows,search,config,e.source,target,e.guestId,service.kind)));
+ const valid=results.filter(r=>r.valid).sort((a,b)=>Number(!!a.exchange)-Number(!!b.exchange)||a.total-b.total||a.source-b.source||a.target-b.target);
+ return valid[0]||fail([...new Set(results.map(r=>r.reason))].join(' '));
 }

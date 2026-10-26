@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialConfig,allocate,validateBooking,guestList,suggestedBeds} from '../dist/engine.js';
-import {transferService,roomServices} from '../dist/placements.js';
+import {transferService,roomServices,typeServices,transferTypeService} from '../dist/placements.js';
 const s={in:'2026-11-10',out:'2026-11-11',adults:5,children:[],rooms:2};
 const pair=c=>allocate([c.rooms[0],c.rooms[1]],s,c);
 
@@ -43,4 +43,30 @@ test('failed swaps never leave an adultless room or bypass maximum occupancy',()
  const c=initialConfig(),stay={...s,adults:4,children:[8]},rows=[{roomId:'a',ratePlanId:'standard',guestIds:['a0','a1','a2'],bedIds:['a2']},{roomId:'b',ratePlanId:'standard',guestIds:['a3','c0'],bedIds:[]}];
  c.rooms[1].adults=1;
  const q=transferService(rows,stay,c,0,1,'a2','bed');assert(!q.valid);assert.match(q.reason,/giới hạn/);
+});
+
+
+test('type services group beds and same-age child fees with nightly unit prices',()=>{
+ const c=initialConfig(),stay={...s,adults:4,children:[9,9],rooms:2,out:'2026-11-13'};
+ const rows=[{roomId:'a',ratePlanId:'standard',guestIds:['a0','a1','c0'],bedIds:[]},{roomId:'a',ratePlanId:'standard',guestIds:['a2','a3','c1'],bedIds:[]}];
+ const groups=typeServices(rows,stay,c,'a');assert.equal(groups.length,1);assert.equal(groups[0].count,2);assert.equal(groups[0].unit,100000);assert.equal(groups[0].label,'Phụ thu trẻ 9 tuổi');
+ const key=groups[0].key;
+ assert(!transferTypeService(rows,stay,c,'a','a',key).valid);
+ assert(!transferTypeService(rows,stay,c,'a','b',key).valid,'cannot transfer to an unselected type');
+});
+
+test('type transfer finds a room with space when another room of the target type is full',()=>{
+ const c=initialConfig(),stay={...s,adults:8,rooms:3};
+ const rows=[{roomId:'a',ratePlanId:'standard',guestIds:['a0','a1','a2'],bedIds:['a2']},{roomId:'a',ratePlanId:'standard',guestIds:['a3','a4'],bedIds:[]},{roomId:'b',ratePlanId:'standard',guestIds:['a5','a6','a7'],bedIds:['a7']}];
+ const original=structuredClone(rows),service=typeServices(rows,stay,c,'b')[0],q=transferTypeService(rows,stay,c,'b','a',service.key);
+ assert(q.valid);assert.equal(q.target,1);assert.equal(q.delta,0);assert.equal(q.total,2600000);assert(validateBooking(q.rows,stay,c).valid);
+ assert.equal(typeServices(q.rows,stay,c,'a')[0].count,2);assert.equal(typeServices(q.rows,stay,c,'b').length,0);assert.deepEqual(rows,original);
+ c.rooms[0].bedEnabled=false;assert(!transferTypeService(rows,stay,c,'b','a',service.key).valid);
+});
+
+test('type transfer moves one service from a grouped line and respects child capacity',()=>{
+ const c=initialConfig(),stay={...s,adults:5,children:[9],rooms:2},rows=allocate([c.rooms[0],c.rooms[1]],stay,c);
+ const bed=typeServices(rows,stay,c,'b').find(g=>g.kind==='bed'),q=transferTypeService(rows,stay,c,'b','a',bed.key);
+ assert(q.valid);assert.equal(q.total,1800000);assert.equal(typeServices(q.rows,stay,c,'a')[0].kind,'bed');assert.equal(typeServices(q.rows,stay,c,'b')[0].kind,'child');
+ assert(validateBooking(q.rows,stay,c).valid);
 });
