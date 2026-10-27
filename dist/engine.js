@@ -1,4 +1,4 @@
-export const initialConfig = () => ({version:5,allowChildren:true,childFreeBelow:6,adultFrom:12,childFee:100000,bedPrice:200000,extraEnabled:true,bedIncludesGuest:true,rooms:[
+export const initialConfig = () => ({version:5,allowChildren:true,childFreeBelow:6,adultFrom:12,childFee:100000,bedPrice:200000,extraEnabled:true,rooms:[
  {id:'a',name:'Awaken Da Nang Hotel',base:2,max:3,adults:3,children:1,beds:1,adultFee:150000,bedEnabled:true,inventory:12,price:700000,flexPrice:850000},
  {id:'b',name:'alo ha',base:2,max:5,adults:4,children:2,beds:1,adultFee:150000,bedEnabled:true,inventory:1,price:800000,flexPrice:950000},
  {id:'c',name:'Leo Truong',base:2,max:3,adults:2,children:1,beds:1,adultFee:150000,bedEnabled:true,inventory:0,price:700000,flexPrice:850000},
@@ -9,7 +9,7 @@ export function normalizeConfig(saved){
  const defaults=initialConfig();
  if(!saved||![1,2,3,4,5].includes(saved.version)||!Array.isArray(saved.rooms))return defaults;
  const c={...defaults,...saved,version:5,rooms:saved.rooms.map(r=>({...r}))};
- delete c.preferBed;delete c.confirmation;
+ delete c.preferBed;delete c.confirmation;delete c.bedIncludesGuest;
  c.rooms.forEach(r=>{delete r.noBed;if(saved.version<3){if(r.id==='b'&&r.price===700000)r.price=800000;r.flexPrice=r.price+150000;}});
  if(saved.version<3&&!c.rooms.some(r=>r.id==='d'))c.rooms.push({...defaults.rooms.find(r=>r.id==='d')});
  if(saved.version<4){
@@ -67,7 +67,7 @@ export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
  const basePrice=ratePrice(r,ratePlanId);if(!ratePlan(ratePlanId)||!Number.isFinite(basePrice)||basePrice<0)errors.push('Gói giá không còn khả dụng.');
  const lines=[{label:'Giá phòng · '+(ratePlan(ratePlanId)?.name||'Không hợp lệ')+' · '+days+' đêm',amount:(basePrice||0)*days,type:'base'}];
  for(const g of guests){let fee=0,description='';if(extra.has(g.id)){fee=r.adultFee;description=(g.adult?'Người lớn thêm':g.label+' · tính giá người lớn')+' · dùng giường có sẵn';}else if(!g.adult&&g.age<c.adultFrom&&!included.has(g.id)){fee=g.age<c.childFreeBelow?0:c.childFee;description=g.label+' · dùng giường có sẵn';}
- if(bedSet.has(g.id)){if(!c.bedIncludesGuest&&fee>0)lines.push({label:g.label+' · phụ thu lưu trú',amount:fee*days,type:'guest',guest:g.id});lines.push({label:g.label+' · 1 giường phụ'+(c.bedIncludesGuest?' (đã gồm phụ thu người sử dụng)':''),amount:c.bedPrice*days,type:'bed',guest:g.id});}
+ if(bedSet.has(g.id)){lines.push({label:g.label+' · 1 giường phụ (đã gồm phụ thu người sử dụng)',amount:c.bedPrice*days,type:'bed',guest:g.id});}
  else if(description)lines.push({label:description,amount:fee*days,type:'guest',guest:g.id});}
  return {valid:errors.length===0,errors,lines,total:lines.reduce((s,l)=>s+l.amount,0),requiredBeds:required};
 }

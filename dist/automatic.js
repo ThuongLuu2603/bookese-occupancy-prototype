@@ -1,6 +1,6 @@
-import {priceHTML} from './prices.js?v=20261027-adult-age-capacity';
-import {capacityHTML} from './capacity.js?v=20261027-adult-age-capacity';
-import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261027-adult-age-capacity';
+import {priceHTML} from './prices.js?v=20261027-inclusive-bed';
+import {capacityHTML} from './capacity.js?v=20261027-inclusive-bed';
+import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261027-inclusive-bed';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export const automaticBeds=suggestedBeds;
@@ -57,7 +57,7 @@ export function automaticSummary(rows,search,config){
    if(l.type==='base'){group.base+=l.amount;continue;}
    const guest=guests.find(g=>g.id===l.guest),adultRate=guest?.adult||guest?.age>=config.adultFrom;
    const category=l.type==='bed'?'bed':adultRate?'adult':'child',onBed=row.bedIds.includes(l.guest);
-   const label=category==='bed'?'Giường phụ'+(config.bedIncludesGuest?' (đã gồm phụ thu người dùng)':''):category==='adult'?'Phụ thu giá người lớn · '+(onBed?'dùng giường phụ':'giường có sẵn'):'Phụ thu trẻ em · '+(onBed?'dùng giường phụ':'giường có sẵn');
+   const label=category==='bed'?'Giường phụ (đã gồm phụ thu người dùng)':category==='adult'?'Phụ thu giá người lớn · '+(onBed?'dùng giường phụ':'giường có sẵn'):'Phụ thu trẻ em · '+(onBed?'dùng giường phụ':'giường có sẵn');
    const unit=l.amount/days,key=category+':'+onBed+':'+unit;
    let fee=group.fees.find(f=>f.key===key);
    if(!fee){fee={key,category,label,unit,count:0,amount:0};group.fees.push(fee);}

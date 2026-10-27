@@ -1,4 +1,4 @@
-import './tooltips.js?v=20261027-adult-age-capacity';
+import './tooltips.js?v=20261027-inclusive-bed';
 // Shared customer-facing capacity copy; occupancy validation remains in engine.js.
 export function capacityHTML(room,config){
  const extra=Math.max(0,room.max-room.base),children=config.allowChildren&&room.children>0;

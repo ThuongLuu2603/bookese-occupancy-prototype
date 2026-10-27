@@ -95,7 +95,7 @@ test('two double rooms: adult extra bed plus age-priced child sharing, consisten
   assert.equal(rec.total,total);
   if(age===8){const html=checkoutContent({allocation:q.allocation,search:q.search,config:c,contact:{},v:q,automatic:true});assert(html.includes('1.700.000đ'));assert(html.includes('Phụ thu trẻ em (100.000đ) × 1'));}
  }
- c.bedIncludesGuest=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1850000);
+ c.bedIncludesGuest=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1700000);
  c.extraEnabled=false;assert.equal(quoteAutomatic({a:2},{...stay,children:[8]},c).total,1650000);
 });
 

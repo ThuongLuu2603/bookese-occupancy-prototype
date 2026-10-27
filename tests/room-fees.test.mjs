@@ -22,7 +22,7 @@ test('one bed price applies everywhere; per-room enable, limits and separate gue
   const q=priceRoom(r,g,suggestedBeds(r,g,c),c,s);
   assert(q.valid);if(r.base===2)assert.equal(q.lines.find(l=>l.type==='bed').amount,825000);
  }
- c.bedIncludesGuest=false;assert.equal(quoteAutomatic({b:1},s,c).total,(800000+275000+240000)*3);
+ c.bedIncludesGuest=false;assert.equal(quoteAutomatic({b:1},s,c).total,(800000+275000)*3);
  c.rooms[1].bedEnabled=false;assert.equal(quoteAutomatic({b:1},s,c).total,(800000+240000)*3);
  c.rooms[1].beds=0;c.rooms[1].bedEnabled=true;assert.equal(quoteAutomatic({b:1},s,c).total,(800000+240000)*3);
 });

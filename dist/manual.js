@@ -1,6 +1,6 @@
-import {quoteAutomatic} from './automatic.js?v=20261027-adult-age-capacity';
-import {typeServices,transferTypeService} from './placements.js?v=20261027-adult-age-capacity';
-import {validateBooking} from './engine.js?v=20261027-adult-age-capacity';
+import {quoteAutomatic} from './automatic.js?v=20261027-inclusive-bed';
+import {typeServices,transferTypeService} from './placements.js?v=20261027-inclusive-bed';
+import {validateBooking} from './engine.js?v=20261027-inclusive-bed';
 
 // Keep already displayed services on their room type when an equally priced,
 // valid allocation exists. Partial quotes remain partial and cannot be booked.

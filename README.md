@@ -18,7 +18,7 @@ Giá cơ bản/inventory mẫu áp dụng đồng nhất mọi đêm. Không có
 ## Giả định cần đối tác chốt
 
 - Phụ thu người thêm dùng giường có sẵn: 150.000đ/người/đêm (minh họa mới, sửa được).
-- Giường phụ: 200.000đ cho Awaken/alo ha, 300.000đ cho Leo Truong; mặc định đã gồm phụ thu người sử dụng (sửa được thành cộng riêng).
+- Giường phụ: 200.000đ/giường/đêm dùng chung toàn chỗ nghỉ; luôn bao gồm phụ thu người sử dụng.
 - Chỗ thêm dùng giường có sẵn tự tính: sức chứa tối đa − khách tiêu chuẩn − giường phụ đang bật. Awaken 0, alo ha 2, Leo Truong 0 với cấu hình mặc định; không nhập riêng. Giường phụ không được vượt phần sức chứa còn lại.
 - Tổng sức chứa là giới hạn cứng, đã gồm giường phụ. Khách tiêu chuẩn + chỗ thêm + giường phụ là khả năng bố trí, không tự tăng giới hạn tổng.
 - Cận trên tuổi hiển thị dạng 12.99 nếu mốc người lớn là 13; logic so sánh tuổi < 13, không bỏ sót khoảng giữa 12.99 và 13. Giữ tuổi thực trẻ, tính tiền theo tuổi ở chính sách. Suất tiêu chuẩn bao gồm người lớn và trẻ em: ưu tiên khách tính giá người lớn, trẻ nhỏ dùng suất còn trống không phụ thu.
@@ -84,7 +84,7 @@ Case 5 người lớn + trẻ 8 tuổi: 2 Awaken = 1.700.000đ (1 giường ph�
 
 Nút **Đổi phòng** xuất hiện cạnh phụ thu gộp theo loại phòng trong cột Giá. Cột này hiển thị giá cơ bản theo đêm, số khách tiêu chuẩn và phụ thu × số lượng, không hiển thị tổng tiền từng phòng. Cột Lựa chọn của bạn chỉ hiển thị gói giá và cơ cấu khách. Hộp chọn chỉ liệt kê loại phòng khác đã đặt, giá sau chuyển và lý do không nhận được; không cho chuyển giữa các phòng cùng loại. Mỗi lần chuyển một dịch vụ và hệ thống tự chọn phòng nguồn/đích hợp lệ trong hai loại phòng. Áp dụng chuyển cả khách đi kèm; ưu tiên chuyển trực tiếp, nếu không được thì thử đổi chỗ một khách ở phòng đích. Mọi thay đổi và chênh lệch giá được xem trước. Chỉ áp dụng khi toàn bộ booking hợp lệ; có Hoàn tác. Chi tiết khách & giá mở popup chỉ đọc: khách, loại giường, giá và phụ thu từng phòng; không có bộ chọn phòng/giường. Đơn giá dịch vụ cạnh nút Đổi phòng hiển thị theo đêm; tổng trong popup là toàn bộ số đêm và có phép nhân khi lưu trú nhiều đêm.
 
-Ví dụ 5 người lớn, Awaken + alo ha: chuyển 1 giường phụ từ alo ha sang Awaken đổi thành 3 người lớn ở Awaken (900k) và 2 ở alo ha (800k), tổng vẫn 1.700k với phí giường bằng nhau. Nếu phí giường khác nhau, tính theo phòng đích và số đêm. Nếu giường đích hết mức hoặc không được cung cấp, không chọn được. Nếu cần đổi chỗ trẻ để không vượt sức chứa, xem trước sẽ nói rõ. Chuyển trẻ sang suất tiêu chuẩn còn trống có thể làm phụ thu trẻ biến mất.
+Ví dụ 5 người lớn, Awaken + alo ha: chuyển 1 giường phụ từ alo ha sang Awaken đổi thành 3 người lớn ở Awaken (900k) và 2 ở alo ha (800k), tổng vẫn 1.700k với phí giường bằng nhau. Giá giường dùng chung toàn chỗ nghỉ và tính theo số đêm. Nếu giường đích hết mức hoặc không được cung cấp, không chọn được. Nếu cần đổi chỗ trẻ để không vượt sức chứa, xem trước sẽ nói rõ. Chuyển trẻ sang suất tiêu chuẩn còn trống có thể làm phụ thu trẻ biến mất.
 
 
 ### Cấu hình phụ thu theo loại phòng (26/10)
@@ -116,3 +116,7 @@ Nút ⓘ cạnh giá cơ bản 1 phòng/1 đêm ở cả PA1 và PA2. Tooltip d�
 - Mốc mặc định 12: 1 người lớn + 2 trẻ 13 tuổi ở 1 Awaken được xét như 3 khách thuộc giới hạn người lớn, không chiếm suất trẻ; tổng 900.000đ/đêm gồm 1 giường phụ. Thêm tình huống này trong bộ chọn ví dụ.
 - 3 người lớn + 2 trẻ 13 tuổi ở alo ha bị chặn: có 5 khách thuộc giới hạn người lớn nhưng phòng chỉ cho 4, dù tổng tối đa 5.
 - Nếu mốc đổi thành 13: trẻ dưới 13 dùng giới hạn trẻ em, từ đúng 13 dùng giới hạn người lớn. Đổi mốc sẽ tính lại khả năng nhận phòng và giá theo cùng quy tắc.
+
+
+### Giường phụ luôn bao gồm phụ thu người sử dụng
+Bỏ lựa chọn đã bao gồm hay chưa bao gồm. Người dùng giường phụ chỉ trả giá giường phụ, không cộng thêm phụ thu người lớn cho cùng người đó. Dữ liệu cũ từng chọn chưa bao gồm cũng áp dụng quy tắc này khi báo giá mới; bản chụp đơn đã xác nhận giữ giá tại thời điểm đặt.

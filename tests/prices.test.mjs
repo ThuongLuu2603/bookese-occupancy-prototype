@@ -23,8 +23,8 @@ test('incomplete selection prices only its assigned subset and labels fees as pr
  const options={room,config,rows:q.allocation,search:stay,stay:q.search,plan:'standard',quantity:3,partial:true},d=roomPriceDetail(options);
  assert.equal(d.total,q.total);assert.equal(d.surcharge,1800000);assert.match(priceHTML(options),/chưa phải giá cho toàn bộ nhóm/);
 });
-test('unbundled extra beds preserve separate occupant charges without tax being added twice',()=>{
+test('legacy unbundled flag cannot add a second occupant charge to an extra bed',()=>{
  const config=initialConfig();config.bedIncludesGuest=false;
  const room=config.rooms[0],rows=allocate([room,room],search,config),d=roomPriceDetail({room,config,rows,search,plan:'standard',quantity:2});
- assert.equal(d.fees.length,3);assert.equal(d.total,validateBooking(rows,search,config).total);assert.equal(d.total,d.base+d.surcharge);
+ assert.equal(d.fees.length,2);assert.equal(d.total,validateBooking(rows,search,config).total);assert.equal(d.total,d.base+d.surcharge);
 });
