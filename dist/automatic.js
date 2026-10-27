@@ -1,6 +1,6 @@
-import {priceHTML} from './prices.js?v=20261027-inclusive-bed';
-import {capacityHTML} from './capacity.js?v=20261027-inclusive-bed';
-import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261027-inclusive-bed';
+import {priceHTML} from './prices.js?v=20261027-child-extra';
+import {capacityHTML} from './capacity.js?v=20261027-child-extra';
+import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261027-child-extra';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export const automaticBeds=suggestedBeds;
@@ -29,13 +29,13 @@ export function quoteAutomatic(quantities,search,config,plan='standard'){
  if(rows){const v=validateBooking(rows,stay,config);return {...v,allocation:rows,covered:search.adults+search.children.length,missing:0,search:stay};}
  // An incomplete selection is a preview for the largest feasible subset only.
  // Never let this quote confirm a booking or masquerade as a full-party price.
- const cap=rooms.reduce((n,r)=>n+r.max,0),adultCap=rooms.reduce((n,r)=>n+r.adults,0),childCap=rooms.reduce((n,r)=>n+r.children,0),total=search.adults+search.children.length;
+ const cap=rooms.reduce((n,r)=>n+r.max,0),adultCap=rooms.reduce((n,r)=>n+r.adults,0),total=search.adults+search.children.length;
  for(let count=Math.min(cap,total-1);count>=rooms.length;count--){
   let best=null;
   for(let mask=0;mask<(1<<search.children.length);mask++){
    const children=search.children.filter((_,i)=>mask&(1<<i)),adults=count-children.length;
    const older=children.filter(age=>age>=config.adultFrom).length;
-   if(children.length-older>childCap||adults<rooms.length||adults>search.adults||adults+older>adultCap)continue;
+   if(adults<rooms.length||adults>search.adults||adults+older>adultCap)continue;
    const partial={...stay,adults,children},allocation=allocate(rooms,partial,config,plan,automaticBeds);
    if(!allocation)continue;
    const v=validateBooking(allocation,partial,config);

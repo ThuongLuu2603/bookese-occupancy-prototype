@@ -34,7 +34,7 @@ test('younger children use existing beds even when their surcharge exceeds the a
 });
 test('free children and child limits still constrain each individual room',()=>{
  const c=example();c.rooms.forEach(r=>r.children=1);const s={...stay,adults:2,children:[2,3,4]};
- const q=quoteAutomatic({a:1,b:1},s,c);assert.equal(q.valid,false);assert(q.missing>=1);
+ const q=quoteAutomatic({a:1,b:1},s,c);assert.equal(q.valid,true);assert.equal(q.missing,0);
  c.allowChildren=false;assert.equal(quoteAutomatic({a:1}, {...stay,adults:2,children:[12]},c).valid,false);
 });
 test('inventory, minimum adults, nights and plan prices are checked',()=>{
@@ -76,11 +76,11 @@ test('child fees only apply outside room-standard occupancy, including without e
  assert.equal(automaticSummary(extra.allocation,extra.search,c)[0].fees[0].category,'child');
 });
 
-test('unused standard slots cannot bypass each room child limit',()=>{
+test('unused standard slots accept children without consuming extra-child allowance',()=>{
  const c=initialConfig();c.rooms[0].children=0;
  const q=quoteAutomatic({a:1,b:1},{...stay,adults:2,children:[8,9]},c);
- assert(q.valid);assert.equal(q.total,1600000);
- assert.equal(automaticSummary(q.allocation,q.search,c).find(g=>g.roomId==='b').fees[0].category,'child');
+ assert(q.valid);assert.equal(q.total,1500000);
+ assert(automaticSummary(q.allocation,q.search,c).every(g=>g.fees.length===0));
 });
 
 
@@ -102,7 +102,7 @@ test('two double rooms: adult extra bed plus age-priced child sharing, consisten
 test('sharing children still respect individual total and child capacity limits',()=>{
  const c=initialConfig();
  assert(!quoteAutomatic({a:1},{...stay,adults:3,children:[8]},c).valid);
- assert(!quoteAutomatic({a:1},{...stay,adults:1,children:[8,9]},c).valid);
+ assert(quoteAutomatic({a:1},{...stay,adults:1,children:[8,9]},c).valid);
  const manual=recommendations({...stay,children:[8]},c).find(r=>r.ratePlanId==='standard'&&r.rooms.every(id=>id==='a'));
  assert.equal(manual.total,1700000,'both modes share the same child-sharing rule');
 });
@@ -143,3 +143,4 @@ test('booking fees combine shared bed prices across types and multiply nights on
  assert.deepEqual(split.map(f=>[f.unit,f.count,f.amount]),[[250000,2,1500000]]);
  assert(split.every(f=>!('roomId' in f)&&!('room' in f)&&!('guest' in f)));
 });
+

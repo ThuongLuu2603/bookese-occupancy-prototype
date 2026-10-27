@@ -110,13 +110,20 @@ Nút ⓘ cạnh giá cơ bản 1 phòng/1 đêm ở cả PA1 và PA2. Tooltip d�
 
 ### Giới hạn sức chứa theo mốc giá người lớn ngày 27 tháng 10
 
-- Nhóm người lớn để kiểm tra sức chứa = người lớn khai báo + trẻ có tuổi từ `adultFrom` trở lên. Nhóm trẻ để kiểm tra sức chứa chỉ gồm trẻ có tuổi dưới `adultFrom`, kể cả trẻ miễn phí. Không đếm một trẻ vào cả hai nhóm. Tổng khách vẫn giữ nguyên.
+- Nhóm người lớn để kiểm tra sức chứa = người lớn khai báo + trẻ có tuổi từ `adultFrom` trở lên. Giới hạn trẻ ở thêm chỉ đếm trẻ dưới tuổi tính người lớn nằm ngoài số khách tiêu chuẩn, kể cả trẻ miễn phí. Không đếm một trẻ vào cả hai nhóm. Tổng khách vẫn giữ nguyên.
 - Tuổi, nhãn trẻ và guestId gốc vẫn được lưu để hiển thị và xác nhận. Mỗi phòng vẫn cần một người lớn thực tế đi cùng. Chính sách toàn chỗ nghỉ không nhận khách dưới 18 tuổi vẫn kiểm tra tuổi thật.
-- Áp dụng ở báo giá từng phòng, đề xuất tổ hợp, phân bổ đủ/thiếu, PA1/PA2, chuyển phụ thu và kiểm tra trước checkout. Đích có 0 suất trẻ vẫn có thể nhận trẻ đạt mốc nếu còn giới hạn người lớn; trẻ dưới mốc không được chuyển vào đích đó.
+- Áp dụng ở báo giá từng phòng, đề xuất tổ hợp, phân bổ đủ/thiếu, PA1/PA2, chuyển phụ thu và kiểm tra trước checkout. Đích có 0 suất trẻ vẫn có thể nhận trẻ đạt mốc nếu còn giới hạn người lớn; trẻ dưới mốc được chuyển vào chỗ tiêu chuẩn còn trống; nếu ngoài tiêu chuẩn thì phải còn chỗ trẻ ở thêm.
 - Mốc mặc định 12: 1 người lớn + 2 trẻ 13 tuổi ở 1 Awaken được xét như 3 khách thuộc giới hạn người lớn, không chiếm suất trẻ; tổng 900.000đ/đêm gồm 1 giường phụ. Thêm tình huống này trong bộ chọn ví dụ.
 - 3 người lớn + 2 trẻ 13 tuổi ở alo ha bị chặn: có 5 khách thuộc giới hạn người lớn nhưng phòng chỉ cho 4, dù tổng tối đa 5.
-- Nếu mốc đổi thành 13: trẻ dưới 13 dùng giới hạn trẻ em, từ đúng 13 dùng giới hạn người lớn. Đổi mốc sẽ tính lại khả năng nhận phòng và giá theo cùng quy tắc.
+- Nếu mốc đổi thành 13: trẻ dưới 13 ngoài chỗ tiêu chuẩn dùng giới hạn trẻ ở thêm, từ đúng 13 dùng giới hạn người lớn. Đổi mốc sẽ tính lại khả năng nhận phòng và giá theo cùng quy tắc.
 
 
 ### Giường phụ luôn bao gồm phụ thu người sử dụng
 Bỏ lựa chọn đã bao gồm hay chưa bao gồm. Người dùng giường phụ chỉ trả giá giường phụ, không cộng thêm phụ thu người lớn cho cùng người đó. Dữ liệu cũ từng chọn chưa bao gồm cũng áp dụng quy tắc này khi báo giá mới; bản chụp đơn đã xác nhận giữ giá tại thời điểm đặt.
+
+
+### Trẻ ở thêm ngoài số khách tiêu chuẩn
+
+Cả hai phương án dùng cùng quy tắc: xếp chỗ tiêu chuẩn trước, sau đó kiểm tra số trẻ ở thêm. Một người lớn và hai trẻ 9 tuổi ở Awaken được đặt với tổng 800.000đ mỗi đêm: một trẻ nằm trong giá phòng, trẻ còn lại phụ thu 100.000đ. Không có giường phụ. Giới hạn trẻ ở thêm bằng không vẫn cho trẻ dùng chỗ tiêu chuẩn còn trống. Giới hạn tổng khách, người lớn và người lớn đi cùng vẫn giữ nguyên.
+
+Tài liệu nghiệp vụ và sơ đồ cập nhật: [Word bản 1.4](dist/docs/Bookese_Quy_tac_v1.4.docx). Bộ kiểm thử gồm 89 tình huống.

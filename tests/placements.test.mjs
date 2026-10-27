@@ -36,7 +36,7 @@ test('full room can receive extra bed by exchanging its child, with explicit swa
 test('child surcharge moves with child, respects child limits and may disappear in a free standard slot',()=>{
  const c=initialConfig(),stay={...s,adults:3,children:[8]},rows=[{roomId:'a',ratePlanId:'standard',guestIds:['a0','a1','c0'],bedIds:[]},{roomId:'b',ratePlanId:'standard',guestIds:['a2'],bedIds:[]}];
  const q=transferService(rows,stay,c,0,1,'c0','child');assert(q.valid);assert.equal(q.delta,-100000);assert.equal(q.total,1500000);assert.equal(roomServices(q.rows,stay,c,1).length,0);
- c.rooms[1].children=0;assert.match(transferService(rows,stay,c,0,1,'c0','child').reason,/không nhận trẻ/);
+ c.rooms[1].children=0;assert(transferService(rows,stay,c,0,1,'c0','child').valid);
 });
 
 test('failed swaps never leave an adultless room or bypass maximum occupancy',()=>{

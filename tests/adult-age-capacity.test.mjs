@@ -16,10 +16,10 @@ test('one accompanying adult and two 13-year-olds fit Awaken as three adults at 
  assert.deepEqual(guests.filter(g=>!g.adult).map(g=>g.age),[13,13]);
  assert(recommendations(s,c).some(r=>r.counts.a===1));
 });
-test('zero child allowance permits adult-priced children while younger children remain blocked',()=>{
+test('zero child allowance permits adult-priced children and younger children use available standard slots',()=>{
  const c=initialConfig(),r=c.rooms[0];r.children=0;
  assert(quote(r,stay(1,[13,13]),c).valid);assert(allocate([r],stay(1,[13,13]),c));
- assert(!quote(r,stay(1,[11]),c).valid);assert.equal(allocate([r],stay(1,[11]),c),null);
+ assert(quote(r,stay(1,[11]),c).valid);assert(allocate([r],stay(1,[11]),c));assert(!quote(r,stay(2,[11]),c).valid);
 });
 test('adult-priced children cannot bypass the adult maximum even with spare child capacity',()=>{
  const c=initialConfig(),r=c.rooms[1],s=stay(3,[13,13]);
@@ -36,7 +36,7 @@ test('capacity reclassifies exactly at the configured age boundary',()=>{
  const c=initialConfig();c.adultFrom=13;
  for(const age of [12,12.99,12.999])assert.deepEqual(occupancyCounts(guestList(stay(1,[age])),c),{adults:1,children:1});
  for(const age of [13,17])assert.deepEqual(occupancyCounts(guestList(stay(1,[age])),c),{adults:2,children:0});
- const r=c.rooms[0];r.children=0;assert(!quote(r,stay(1,[12]),c).valid);assert(quote(r,stay(1,[13]),c).valid);
+ const r=c.rooms[0];r.children=0;assert(quote(r,stay(1,[12]),c).valid);assert(quote(r,stay(1,[13]),c).valid);
 });
 test('partial quote counts older children against adult capacity without using child slots',()=>{
  const c=initialConfig(),r=c.rooms[0];r.children=0;
@@ -75,5 +75,5 @@ test('manual and automatic retain age-based prices across plans, nights and bed 
 });
 test('capacity tooltip explains age-dependent limits while retaining standard occupancy icon',()=>{
  const c=initialConfig(),r=c.rooms[0];r.children=0;
- const html=capacityHTML(r,c);assert.match(html,/×2/);assert.match(html,/gồm trẻ từ 12 tuổi/);assert.match(html,/Không nhận trẻ dưới 12 tuổi/);
+ const html=capacityHTML(r,c);assert.match(html,/×2/);assert.match(html,/gồm trẻ từ 12 tuổi/);assert.match(html,/Không nhận trẻ ở thêm ngoài số khách tiêu chuẩn/);
 });

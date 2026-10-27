@@ -1,5 +1,5 @@
-import {automaticSummary,aggregateRoomsHTML,automaticNote,bookingFees,bookingFeeLabel} from './automatic.js?v=20261027-inclusive-bed';
-import {money,nights,ratePlan,guestList} from './engine.js?v=20261027-inclusive-bed';
+import {automaticSummary,aggregateRoomsHTML,automaticNote,bookingFees,bookingFeeLabel} from './automatic.js?v=20261027-child-extra';
+import {money,nights,ratePlan,guestList} from './engine.js?v=20261027-child-extra';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const panel=(title,body)=>`<details class="booking-panel" open><summary>${title}<span class="panel-sign" aria-hidden="true"></span></summary><div class="booking-panel-body">${body}</div></details>`;
 const date=d=>new Date(d+'T00:00:00Z').toLocaleDateString('vi-VN',{weekday:'short',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});

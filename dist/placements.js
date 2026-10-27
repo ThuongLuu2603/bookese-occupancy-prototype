@@ -1,4 +1,4 @@
-import {guestList,suggestedBeds,validateBooking,roomBeds,nights,countsAsAdult} from './engine.js?v=20261027-inclusive-bed';
+import {guestList,suggestedBeds,validateBooking,roomBeds,nights,countsAsAdult} from './engine.js?v=20261027-child-extra';
 
 export function roomServices(rows,search,config,index){
  const v=validateBooking(rows,{...search,rooms:rows.length},config),guests=guestList(search);
@@ -20,7 +20,6 @@ export function transferService(rows,search,config,source,target,guestId,kind,ma
  if(kind==='bed'&&!roomBeds(destination,config))return fail('Phòng này không cung cấp giường phụ.');
  if(kind==='bed'&&rows[target].bedIds.length>=roomBeds(destination,config))return fail('Phòng này đã đủ số giường phụ tối đa.');
  const incoming=guests.find(g=>g.id===guestId);
- if(!countsAsAdult(incoming,config)&&destination.children===0)return fail('Phòng này không nhận trẻ dưới '+config.adultFrom+' tuổi.');
  const candidates=[];
  for(const exchange of [null,...rows[target].guestIds]){
   const next=rows.map(r=>({...r,guestIds:[...r.guestIds],bedIds:[...r.bedIds]}));
