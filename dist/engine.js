@@ -38,16 +38,19 @@ export const requiredExtraBeds=(r,count,c)=>Math.min(roomBeds(r,c),Math.max(0,co
 export const money=n=>new Intl.NumberFormat('vi-VN').format(n)+'đ';
 export function nights(s){return Math.max(0,Math.round((Date.parse(s.out+'T00:00:00Z')-Date.parse(s.in+'T00:00:00Z'))/86400000));}
 export function roomBeds(r,c){return c.extraEnabled&&r.bedEnabled?r.beds:0;}
+// Preserve declared ages/guest IDs; classify capacity by the adult pricing age.
+export const countsAsAdult=(guest,c)=>guest.adult||guest.age>=c.adultFrom;
+export function occupancyCounts(guests,c){const adults=guests.filter(g=>countsAsAdult(g,c)).length;return {adults,children:guests.length-adults};}
 export function guestList(s){return [...Array.from({length:s.adults},(_,i)=>({id:'a'+i,label:'Người lớn '+(i+1),adult:true})),...s.children.map((age,i)=>({id:'c'+i,label:'Trẻ '+(i+1)+' · '+age+' tuổi',age,adult:false}))];}
 export function configErrors(c){const errors=[];if(!Number.isInteger(c.childFreeBelow)||!Number.isInteger(c.adultFrom)||c.childFreeBelow<0||c.childFreeBelow>=c.adultFrom||c.adultFrom>18)errors.push('Mốc tuổi phải liên tục: tuổi miễn phí nhỏ hơn tuổi tính giá người lớn (tối đa 18).');if([c.bedPrice,c.childFee].some(v=>!Number.isInteger(v)||v<0))errors.push('Phụ thu phải là số từ 0 trở lên.');for(const r of c.rooms){if(['base','max','adults','children','beds','inventory','price','adultFee'].some(k=>!Number.isFinite(r[k])||r[k]<0||!Number.isInteger(r[k])))errors.push(r.name+': các giá trị phải là số nguyên không âm.');if(r.base<1||r.adults<1||r.max<r.base||r.adults>r.max||r.children>=r.max)errors.push(r.name+': kiểm tra khách tiêu chuẩn, tổng tối đa, người lớn và trẻ em.');if(r.flexPrice!=null&&(!Number.isInteger(r.flexPrice)||r.flexPrice<0))errors.push(r.name+': giá linh hoạt không hợp lệ.');if(roomBeds(r,c)>r.max-r.base)errors.push(r.name+': số giường phụ không được vượt sức chứa tối đa trừ số khách tiêu chuẩn.');}return errors;}
 export function priceRoom(r,guests,bedIds,c,stay,ratePlanId='standard'){
- const adults=guests.filter(g=>g.adult).length, kids=guests.filter(g=>!g.adult), bedSet=new Set(bedIds), days=nights(stay), errors=[];
- const ratedGuests=guests.filter(g=>g.adult||g.age>=c.adultFrom);
+ const accompanyingAdults=guests.filter(g=>g.adult).length, kids=guests.filter(g=>!g.adult), bedSet=new Set(bedIds), days=nights(stay), errors=[];
+ const ratedGuests=guests.filter(g=>countsAsAdult(g,c)),counts=occupancyCounts(guests,c);
  const beds=roomBeds(r,c), existing=r.base+existingExtraPlaces(r,c),required=requiredExtraBeds(r,ratedGuests.length,c);
- if(adults<1)errors.push('Mỗi phòng cần ít nhất 1 người lớn đi cùng.');
+ if(accompanyingAdults<1)errors.push('Mỗi phòng cần ít nhất 1 người lớn đi cùng.');
  if(guests.length>r.max)errors.push('Vượt tổng tối đa '+r.max+' khách.');
- if(adults>r.adults)errors.push('Tối đa '+r.adults+' người lớn.');
- if(kids.length>r.children)errors.push('Tối đa '+r.children+' trẻ em.');
+ if(counts.adults>r.adults)errors.push('Tối đa '+r.adults+' khách tính vào giới hạn người lớn (gồm trẻ từ '+c.adultFrom+' tuổi).');
+ if(counts.children>r.children)errors.push('Tối đa '+r.children+' trẻ dưới '+c.adultFrom+' tuổi.');
  if(kids.length&&!c.allowChildren)errors.push('Chỗ nghỉ không nhận trẻ em.');
  if(bedSet.size<required)errors.push('Ưu tiên áp dụng '+required+' giường phụ trước khi dùng chỗ thêm giường có sẵn.');
  if(bedSet.size>beds)errors.push('Tối đa '+beds+' giường phụ.');
@@ -76,7 +79,8 @@ export function suggestedBeds(r,guests,c){
 // Dynamic programming examines all adult counts and child subsets per booked room.
 // Adult identities are interchangeable; child identities/ages are retained exactly.
 export function allocate(rooms,search,c,ratePlanId='standard',bedPicker=suggestedBeds){
- if(search.adults<rooms.length||nights(search)<1||search.adults+search.children.length>rooms.reduce((n,r)=>n+r.max,0)||search.adults>rooms.reduce((n,r)=>n+r.adults,0)||search.children.length>rooms.reduce((n,r)=>n+r.children,0))return null;
+ const olderCount=search.children.filter(age=>age>=c.adultFrom).length;
+ if(search.adults<rooms.length||nights(search)<1||search.adults+search.children.length>rooms.reduce((n,r)=>n+r.max,0)||search.adults+olderCount>rooms.reduce((n,r)=>n+r.adults,0)||search.children.length-olderCount>rooms.reduce((n,r)=>n+r.children,0))return null;
  const guests=guestList(search),adultGuests=guests.filter(g=>g.adult),children=guests.filter(g=>!g.adult),memo=new Map();
  function solve(i,leftAdults,mask){
   if(i===rooms.length)return leftAdults===0&&mask===0?{cost:0,rows:[]}:null;
@@ -86,7 +90,8 @@ export function allocate(rooms,search,c,ratePlanId='standard',bedPicker=suggeste
   for(let n=1;n<=maxAdults;n++){
    for(let subset=mask;;subset=(subset-1)&mask){
     const kids=children.filter((g,k)=>subset&(1<<k));
-    if(kids.length<=r.children&&n+kids.length<=r.max&&(!kids.length||c.allowChildren)){
+    const older=kids.filter(g=>countsAsAdult(g,c)).length;
+    if(kids.length-older<=r.children&&n+older<=r.adults&&n+kids.length<=r.max&&(!kids.length||c.allowChildren)){
      const group=[...adultGuests.slice(search.adults-leftAdults,search.adults-leftAdults+n),...kids];
      const bedIds=bedPicker(r,group,c,search,ratePlanId),quote=priceRoom(r,group,bedIds,c,search,ratePlanId);
      if(quote.valid){const tail=solve(i+1,leftAdults-n,mask^subset);if(tail&&(!best||quote.total+tail.cost<best.cost))best={cost:quote.total+tail.cost,rows:[{roomId:r.id,ratePlanId,guestIds:group.map(g=>g.id),bedIds,quote},...tail.rows]};}
@@ -106,7 +111,7 @@ export function recommendations(search,c,quantities,onlyPlan,bedPicker=suggested
    if(i===c.rooms.length){
     if(list.length!==search.rooms)return;
     const allocation=allocate(list,search,c,plan.id,bedPicker);
-    if(allocation)results.push({ratePlanId:plan.id,rooms:list.map(r=>r.id),counts,allocation,total:allocation.reduce((s,a)=>s+a.quote.total,0),capacityGap:list.reduce((s,r)=>s+r.max,0)-search.adults-search.children.length,adultGap:list.reduce((s,r)=>s+r.adults,0)-search.adults});return;
+    if(allocation)results.push({ratePlanId:plan.id,rooms:list.map(r=>r.id),counts,allocation,total:allocation.reduce((s,a)=>s+a.quote.total,0),capacityGap:list.reduce((s,r)=>s+r.max,0)-search.adults-search.children.length,adultGap:list.reduce((s,r)=>s+r.adults,0)-search.adults-search.children.filter(age=>age>=c.adultFrom).length});return;
    }
    const r=c.rooms[i],price=ratePrice(r,plan.id),max=Number.isFinite(price)&&price>=0?Math.min(r.inventory,search.rooms-list.length):0;
    for(let n=0;n<=max;n++){if(quantities&&n!==(quantities[r.id]||0))continue;build(i+1,[...list,...Array(n).fill(r)],{...counts,[r.id]:n});}

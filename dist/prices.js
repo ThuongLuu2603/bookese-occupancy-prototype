@@ -1,5 +1,5 @@
-import './tooltips.js?v=20261026-price-tooltip';
-import {money,nights,ratePrice,ratePlan,validateBooking,guestList} from './engine.js?v=20261026-price-tooltip';
+import './tooltips.js?v=20261027-adult-age-capacity';
+import {money,nights,ratePrice,ratePlan,validateBooking,guestList} from './engine.js?v=20261027-adult-age-capacity';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export function roomPriceDetail({room,plan,search,config,quantity=0,rows=[],stay=search,automatic=false,partial=false}){

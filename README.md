@@ -106,3 +106,13 @@ Ví dụ chọn 1 Awaken cho 5 người lớn: tạm tính 3 khách + 1 giườn
 
 ### Tooltip chi tiết giá
 Nút ⓘ cạnh giá cơ bản 1 phòng/1 đêm ở cả PA1 và PA2. Tooltip dùng số phòng đang chọn (hoặc tham khảo 1 phòng), liệt kê từng đêm, thuế/phí đã bao gồm, tổng và xu dự kiến 2% như checkout. Prototype chưa cấu hình tách VAT/phí dịch vụ nên không tự tạo tỷ lệ hoặc cộng thuế lần nữa. PA1 lấy phụ thu từ báo giá đã kiểm tra của loại phòng; bản chưa đủ khách ghi tạm tính. PA2 chỉ hiển thị tiền phòng, hướng dẫn xem phụ thu toàn đơn tại Tổng tiền. Gói chưa chọn không nhận phụ thu từ gói khác. Tooltip mở bằng rê chuột, bấm hoặc bàn phím; Escape đóng.
+
+
+### Giới hạn sức chứa theo mốc giá người lớn ngày 27 tháng 10
+
+- Nhóm người lớn để kiểm tra sức chứa = người lớn khai báo + trẻ có tuổi từ `adultFrom` trở lên. Nhóm trẻ để kiểm tra sức chứa chỉ gồm trẻ có tuổi dưới `adultFrom`, kể cả trẻ miễn phí. Không đếm một trẻ vào cả hai nhóm. Tổng khách vẫn giữ nguyên.
+- Tuổi, nhãn trẻ và guestId gốc vẫn được lưu để hiển thị và xác nhận. Mỗi phòng vẫn cần một người lớn thực tế đi cùng. Chính sách toàn chỗ nghỉ không nhận khách dưới 18 tuổi vẫn kiểm tra tuổi thật.
+- Áp dụng ở báo giá từng phòng, đề xuất tổ hợp, phân bổ đủ/thiếu, PA1/PA2, chuyển phụ thu và kiểm tra trước checkout. Đích có 0 suất trẻ vẫn có thể nhận trẻ đạt mốc nếu còn giới hạn người lớn; trẻ dưới mốc không được chuyển vào đích đó.
+- Mốc mặc định 12: 1 người lớn + 2 trẻ 13 tuổi ở 1 Awaken được xét như 3 khách thuộc giới hạn người lớn, không chiếm suất trẻ; tổng 900.000đ/đêm gồm 1 giường phụ. Thêm tình huống này trong bộ chọn ví dụ.
+- 3 người lớn + 2 trẻ 13 tuổi ở alo ha bị chặn: có 5 khách thuộc giới hạn người lớn nhưng phòng chỉ cho 4, dù tổng tối đa 5.
+- Nếu mốc đổi thành 13: trẻ dưới 13 dùng giới hạn trẻ em, từ đúng 13 dùng giới hạn người lớn. Đổi mốc sẽ tính lại khả năng nhận phòng và giá theo cùng quy tắc.

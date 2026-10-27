@@ -1,6 +1,6 @@
-import {priceHTML} from './prices.js?v=20261026-price-tooltip';
-import {capacityHTML} from './capacity.js?v=20261026-price-tooltip';
-import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261026-price-tooltip';
+import {priceHTML} from './prices.js?v=20261027-adult-age-capacity';
+import {capacityHTML} from './capacity.js?v=20261027-adult-age-capacity';
+import {allocate,recommendations,validateBooking,suggestedBeds,ratePlans,ratePrice,ratePlan,roomBeds,guestList,nights,money} from './engine.js?v=20261027-adult-age-capacity';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export const automaticBeds=suggestedBeds;
@@ -34,7 +34,8 @@ export function quoteAutomatic(quantities,search,config,plan='standard'){
   let best=null;
   for(let mask=0;mask<(1<<search.children.length);mask++){
    const children=search.children.filter((_,i)=>mask&(1<<i)),adults=count-children.length;
-   if(children.length>childCap||adults<rooms.length||adults>search.adults||adults>adultCap)continue;
+   const older=children.filter(age=>age>=config.adultFrom).length;
+   if(children.length-older>childCap||adults<rooms.length||adults>search.adults||adults+older>adultCap)continue;
    const partial={...stay,adults,children},allocation=allocate(rooms,partial,config,plan,automaticBeds);
    if(!allocation)continue;
    const v=validateBooking(allocation,partial,config);
