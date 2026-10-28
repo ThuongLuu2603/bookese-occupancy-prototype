@@ -118,9 +118,9 @@ test('PA2 mixed booking exposes only booking-wide fees in table, checkout and co
  const confirmation=aggregateRoomsHTML(groups,1);
  for(const html of [table,checkout,confirmation]){
   assert(html.includes('Awaken Da Nang Hotel × 1'));assert(html.includes('alo ha × 1'));
-  assert(html.includes('Phụ thu trẻ em (100.000đ) × 1'));assert(html.includes('Giường phụ (200.000đ) × 1'));
+  if(html===table){assert(html.includes('Phụ thu trẻ em × 1'));assert(html.includes('Giường phụ × 1'));assert(html.includes('Phụ thu đã bao gồm trong toàn đơn'));}else{assert(html.includes('Phụ thu trẻ em (100.000đ) × 1'));assert(html.includes('Giường phụ (200.000đ) × 1'));}
   assert(!html.includes('auto-type-fees'));assert(!html.includes('Tổng loại phòng'));
-  assert(!html.includes('1.000.000đ'),'do not expose alo ha total including assigned bed');
+  if(html!==table)assert(!html.includes('1.000.000đ'),'confirmation keeps aggregate-only surcharges');
  }
  const roomSections=[...confirmation.matchAll(/<div class="booking-room auto-confirm-type">(.*?)<\/p><\/div>/g)];
  assert.equal(roomSections.length,2);

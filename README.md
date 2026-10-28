@@ -104,10 +104,9 @@ Dữ liệu v4 dùng giá trẻ em của phòng đầu tiên làm giá chung; n�
 Khi khách thay đổi số lượng, tính lại phương án hợp lệ có tổng giá thấp nhất, sau đó ưu tiên giữ giường phụ/phụ thu ở loại phòng đang hiển thị bằng các lần chuyển hoặc đổi chỗ hợp lệ có cùng tổng tiền. Áp dụng cả bản tạm tính chưa đủ khách và bố trí khách đã chủ động chuyển. Không giữ khoản phụ thu đã hết cần thiết, không tăng giá để giữ vị trí và không vượt giới hạn phòng. PA2 tiếp tục tự tính độc lập.
 Ví dụ chọn 1 Awaken cho 5 người lớn: tạm tính 3 khách + 1 giường phụ. Thêm 1 alo ha: giữ 3 khách + 1 giường phụ tại Awaken, 2 khách tại alo ha, tổng 1.700.000đ. Nếu chọn đủ 3 phòng tiêu chuẩn 2 khách, phụ thu không còn cần thiết và được bỏ.
 
-### Tooltip chi tiết giá
-Nút ⓘ cạnh giá cơ bản 1 phòng/1 đêm ở cả PA1 và PA2. Tooltip dùng số phòng đang chọn (hoặc tham khảo 1 phòng), liệt kê từng đêm, thuế/phí đã bao gồm, tổng và xu dự kiến 2% như checkout. Prototype chưa cấu hình tách VAT/phí dịch vụ nên không tự tạo tỷ lệ hoặc cộng thuế lần nữa. PA1 lấy phụ thu từ báo giá đã kiểm tra của loại phòng; bản chưa đủ khách ghi tạm tính. PA2 chỉ hiển thị tiền phòng, hướng dẫn xem phụ thu toàn đơn tại Tổng tiền. Gói chưa chọn không nhận phụ thu từ gói khác. Tooltip mở bằng rê chuột, bấm hoặc bàn phím; Escape đóng.
-
-
+### Giá 1 đêm và tooltip chi tiết giá
+Cả PA1 và PA2 hiển thị Giá 1 đêm theo số phòng đã chọn và phụ thu hợp lệ. Chưa chọn phòng: giá tiêu chuẩn một phòng. Với 5 người lớn và giá mẫu Awaken: chọn 1 phòng là 900.000đ (tạm tính 3/5 khách); chọn 2 phòng là 1.600.000đ; chọn 3 phòng là 2.100.000đ, không phụ thu. Tổng đơn cộng giá các dòng đã chọn rồi nhân số đêm, không nhân số phòng hay cộng phụ thu lần nữa.
+Bên ngoài tooltip chỉ ghi số lượng phụ thu, không ghi riêng số tiền. PA1 tooltip chi tiết tiền phòng và phụ thu của loại phòng, giữ nút Đổi phòng. PA2 tooltip ghi phụ thu chung toàn đơn, không xác nhận vị trí giường phụ hoặc khách thêm. Thuế và phí đã bao gồm; không tự tạo tỷ lệ thuế. Khi chưa đủ chỗ vẫn hiện giá và phụ thu tạm tính, khóa đặt phòng. Tooltip mở bằng rê chuột, bấm hoặc bàn phím; Escape đóng.
 ### Giới hạn sức chứa theo mốc giá người lớn ngày 27 tháng 10
 
 - Nhóm người lớn để kiểm tra sức chứa = người lớn khai báo + trẻ có tuổi từ `adultFrom` trở lên. Giới hạn trẻ ở thêm chỉ đếm trẻ dưới tuổi tính người lớn nằm ngoài số khách tiêu chuẩn, kể cả trẻ miễn phí. Không đếm một trẻ vào cả hai nhóm. Tổng khách vẫn giữ nguyên.
@@ -126,4 +125,4 @@ Bỏ lựa chọn đã bao gồm hay chưa bao gồm. Người dùng giường p
 
 Cả hai phương án dùng cùng quy tắc: xếp chỗ tiêu chuẩn trước, sau đó kiểm tra số trẻ ở thêm. Một người lớn và hai trẻ 9 tuổi ở Awaken được đặt với tổng 800.000đ mỗi đêm: một trẻ nằm trong giá phòng, trẻ còn lại phụ thu 100.000đ. Không có giường phụ. Giới hạn trẻ ở thêm bằng không vẫn cho trẻ dùng chỗ tiêu chuẩn còn trống. Giới hạn tổng khách, người lớn và người lớn đi cùng vẫn giữ nguyên.
 
-Tài liệu nghiệp vụ và sơ đồ cập nhật: [Word bản 1.4](dist/docs/Bookese_Quy_tac_v1.4.docx). Bộ kiểm thử gồm 89 tình huống.
+Tài liệu nghiệp vụ và sơ đồ cập nhật: [Word bản 1.5](dist/docs/Bookese_Quy_tac_v1.5.docx). Bộ kiểm thử gồm 94 tình huống.

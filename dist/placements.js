@@ -1,4 +1,4 @@
-import {guestList,suggestedBeds,validateBooking,roomBeds,nights,countsAsAdult} from './engine.js?v=20261027-child-extra';
+import {guestList,suggestedBeds,validateBooking,roomBeds,nights,countsAsAdult} from './engine.js?v=20261028-nightly-total';
 
 export function roomServices(rows,search,config,index){
  const v=validateBooking(rows,{...search,rooms:rows.length},config),guests=guestList(search);
